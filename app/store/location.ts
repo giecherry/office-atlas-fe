@@ -1,13 +1,63 @@
 import { create } from "zustand";
-import type { Location } from "../types/location";
+import { persist } from "zustand/middleware";
+import type { Location, locationType } from "../types/location";
 
 interface LocationStore {
     locations: Location[];
     setLocations: (locations: Location[]) => void;
+    activeFilters: locationType[];
+    setActiveFilters: (filters: locationType[]) => void;
+    toggleFilter: (filter: locationType | 'all') => void;
+    clearFilters: () => void;
+
+    showFavoritesOnly: boolean;
+    toggleFavoritesFilter: () => void;
+    favoriteLocations: string[];
+    toggleFavorite: (locationId: string) => void;
 }
 
-export const useLocationStore = create<LocationStore>((set) => ({
-    locations: [],
+export const useLocationStore = create<LocationStore>()(
+    persist(
+        (set, get) => ({
+            locations: [],
+            setLocations: (locations) => set({ locations }),
 
-    setLocations: (locations) => set({ locations }),
-}));
+            activeFilters: [],
+            setActiveFilters: (filters) => set({ activeFilters: filters }),
+
+            toggleFilter: (filter) => {
+                const { activeFilters, showFavoritesOnly } = get();
+
+                if (filter === 'all') {
+                    if (showFavoritesOnly || activeFilters.length > 0) {
+                        set({ activeFilters: [], showFavoritesOnly: false });
+                    }
+                } else {
+                    const newFilters = activeFilters.includes(filter)
+                        ? activeFilters.filter(f => f !== filter)
+                        : [...activeFilters, filter];
+                    set({ activeFilters: newFilters });
+                }
+            },
+
+            clearFilters: () => set({ activeFilters: [], showFavoritesOnly: false }),
+            showFavoritesOnly: false,
+            toggleFavoritesFilter: () => {
+                set({ showFavoritesOnly: !get().showFavoritesOnly });
+            },
+
+            favoriteLocations: [],
+            toggleFavorite: (locationId) => {
+                const { favoriteLocations } = get();
+                const newFavorites = favoriteLocations.includes(locationId)
+                    ? favoriteLocations.filter(id => id !== locationId)
+                    : [...favoriteLocations, locationId];
+                set({ favoriteLocations: newFavorites });
+            },
+        }),
+        {
+            name: "location-store",
+            partialize: (state) => ({ favoriteLocations: state.favoriteLocations }),
+        }
+    )
+);

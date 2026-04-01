@@ -1,21 +1,19 @@
 'use client'
 
+import Filters from "./components/Filters";
 import MapCard from "./components/Map";
 import Search from "./components/Search";
-import { useLocationStore } from "./store/location";
 
 
 export default function Home() {
-  const locations = useLocationStore((state) => state.locations);
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start gap-4">
-        OfficeAtlas
+    <main className="flex flex-1 w-full flex-col items-center py-32 px-2 lg:px-16 bg-[#E4E9F1] dark:bg-black sm:items-start">
+      <div className="bg-white flex flex-col gap-4 rounded-xl shadow-md p-8 mb-8 w-full">
         <Search />
-        <MapCard />
-        {locations && <p>Total locations: {locations.length}</p>}
-      </main>
-    </div>
+        <Filters />
+      </div>
+      <MapCard />
+    </main>
   );
 }
