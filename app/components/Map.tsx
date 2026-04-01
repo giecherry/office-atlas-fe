@@ -5,10 +5,12 @@ import { getLocations } from "../api/locations";
 import { useState, useEffect, useCallback } from "react";
 import { Location } from "../types/location";
 import { useLocationStore } from "../store/location";
+import { Star } from "lucide-react"
+
 
 export default function MapCard() {
 
-    const { locations, setLocations } = useLocationStore();
+    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations } = useLocationStore();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,19 +21,27 @@ export default function MapCard() {
         fetchData();
     }, [setLocations]);
 
+    const filteredLocations = locations.filter(loc => {
+        const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+        const matchesFavoritesFilter = !showFavoritesOnly || favoriteLocations.includes(loc.id);
+        return matchesTypeFilter && matchesFavoritesFilter;
+    });
+
     const getMarkerColor = (type: string) => {
         switch (type) {
-            case 'office': return '#4285F4';
-            case 'restaurant': return '#EA4335';
-            case 'train': return '#FBBC04';
-            case 'bus': return '#34A853';
-            default: return '#808080';
+            case 'office': return '#16417F';
+            case 'restaurant': return '#B20018';
+            case 'train': return '#EAAD06';
+            case 'bus': return '#008064';
+            default: return '#87AFE8';
         }
     };
 
     const MarkerWithInfoWindow = ({ loc }: { loc: Location }) => {
         const [markerRef, marker] = useAdvancedMarkerRef();
         const [infoWindowShown, setInfoWindowShown] = useState(false);
+        const { toggleFavorite, favoriteLocations } = useLocationStore();
+        const isFavorite = favoriteLocations.includes(loc.id);
 
         const handleMarkerClick = useCallback(
             () => setInfoWindowShown(isShown => !isShown),
@@ -60,8 +70,18 @@ export default function MapCard() {
 
                 {infoWindowShown && (
                     <InfoWindow anchor={marker} onClose={handleClose}>
-                        <h1>{loc.name}</h1>
-                        <p>{loc.description}</p>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h1>{loc.name}</h1>
+                                <p>{loc.description}</p>
+                            </div>
+                            <button
+                                onClick={() => toggleFavorite(loc.id)}
+                                className="text-2xl"
+                            >
+                                {isFavorite ? <Star fill='yellow' /> : <Star />}
+                            </button>
+                        </div>
                     </InfoWindow>
                 )}
             </>
@@ -76,7 +96,7 @@ export default function MapCard() {
                     defaultZoom={11}
                     mapId="YOUR_MAP_ID"
                 >
-                    {locations && locations.map((loc) => (
+                    {filteredLocations && filteredLocations.map((loc) => (
                         <MarkerWithInfoWindow key={loc.id} loc={loc} />
                     ))}
                 </Map>
