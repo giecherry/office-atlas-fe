@@ -26,10 +26,12 @@ export const useLocationStore = create<LocationStore>()(
             setActiveFilters: (filters) => set({ activeFilters: filters }),
 
             toggleFilter: (filter) => {
-                const { activeFilters } = get();
+                const { activeFilters, showFavoritesOnly } = get();
 
                 if (filter === 'all') {
-                    set({ activeFilters: activeFilters.length === 0 ? [] : [] });
+                    if (showFavoritesOnly || activeFilters.length > 0) {
+                        set({ activeFilters: [], showFavoritesOnly: false });
+                    }
                 } else {
                     const newFilters = activeFilters.includes(filter)
                         ? activeFilters.filter(f => f !== filter)
