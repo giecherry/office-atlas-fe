@@ -4,10 +4,11 @@ import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useAdvancedMarkerRef
 import { getLocations } from "../api/locations";
 import { useState, useEffect, useCallback } from "react";
 import { Location } from "../types/location";
+import { useLocationStore } from "../store/location";
 
 export default function MapCard() {
 
-    const [locations, setLocations] = useState<Location[] | null>(null);
+    const { locations, setLocations } = useLocationStore();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -16,7 +17,7 @@ export default function MapCard() {
         };
 
         fetchData();
-    }, []);
+    }, [setLocations]);
 
     const getMarkerColor = (type: string) => {
         switch (type) {
