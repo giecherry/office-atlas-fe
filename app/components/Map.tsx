@@ -42,34 +42,32 @@ export default function MapCard() {
 
 
     return (
-        <div className="w-full h-200 p-6 bg-white rounded-xl shadow-md overflow-hidden lg:h-150">
-            <div className="w-full h-full rounded-md overflow-hidden">
-                <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-                    <Map
-                        defaultCenter={{ lat: 59.20413758789485, lng: 17.610222559007827 }}
-                        defaultZoom={11}
-                        mapId="YOUR_MAP_ID"
-                    >
-                        {filteredLocations && filteredLocations.map((loc) => (
-                            <AdvancedMarker
-                                key={loc.id}
-                                position={{
-                                    lat: Number(loc.coordinates.lat),
-                                    lng: Number(loc.coordinates.lng)
-                                }}
-                                title={loc.name}
-                                onClick={() => setSelectedLocation(loc)}
-                            >
-                                <Pin
-                                    background={getMarkerColor(loc.type)}
-                                    borderColor={'#fff'}
-                                    glyphColor={'#fff'}
-                                />
-                            </AdvancedMarker>
-                        ))}
-                    </Map>
-                </APIProvider>
-            </div>
+        <div className="w-full h-full rounded-md overflow-hidden">
+            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
+                <Map
+                    defaultCenter={{ lat: 59.20413758789485, lng: 17.610222559007827 }}
+                    defaultZoom={11}
+                    mapId="YOUR_MAP_ID"
+                >
+                    {filteredLocations && filteredLocations.map((loc) => (
+                        <AdvancedMarker
+                            key={loc.id}
+                            position={{
+                                lat: Number(loc.coordinates.lat),
+                                lng: Number(loc.coordinates.lng)
+                            }}
+                            title={loc.name}
+                            onClick={() => setSelectedLocation(loc)}
+                        >
+                            <Pin
+                                background={getMarkerColor(loc.type)}
+                                borderColor={'#fff'}
+                                glyphColor={'#fff'}
+                            />
+                        </AdvancedMarker>
+                    ))}
+                </Map>
+            </APIProvider>
         </div>
     );
 }

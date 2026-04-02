@@ -1,5 +1,4 @@
 import { Navigation, Star, Building2, UtensilsCrossed, Train, Bus, X } from 'lucide-react';
-import { motion } from 'motion/react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
 
@@ -22,7 +21,6 @@ const getLocationIcon = (type: Location['type']) => {
     }
 };
 
-
 export default function LocationDetailPanel({
     location,
     onClose,
@@ -35,13 +33,7 @@ export default function LocationDetailPanel({
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="bg-white rounded-xl shadow-md overflow-hidden h-full flex flex-col px-4 py-2"
-        >
+        <div className="bg-white flex flex-col h-full px-4 py-2">
             <div className="p-2 border-b border-gray-200">
                 <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -73,7 +65,6 @@ export default function LocationDetailPanel({
                 </div>
             </div>
 
-            {/* Actions */}
             <div className="p-6 border-t border-gray-200 space-y-3">
                 <button
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors"
@@ -87,7 +78,7 @@ export default function LocationDetailPanel({
                     className={`
                         w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border
                         ${isFavorite
-                            ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                            ? 'bg-[#F9EEC3] text-[#F1C21B] border-[#F1C21B] hover:bg-[#F8E596]'
                             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-[#16417F]'
                         }
                     `}
@@ -96,6 +87,6 @@ export default function LocationDetailPanel({
                     <span>{isFavorite ? 'Saved to Favorites' : 'Add to Favorites'}</span>
                 </button>
             </div>
-        </motion.div>
+        </div>
     );
 }
