@@ -1,6 +1,7 @@
 import { Navigation, Star, Building2, UtensilsCrossed, Train, Bus, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Location } from '../types/location';
+import { useLocationStore } from '../store/location';
 
 interface LocationDetailPanelProps {
     location: Location | null;
@@ -26,6 +27,8 @@ export default function LocationDetailPanel({
     location,
     onClose,
 }: LocationDetailPanelProps) {
+    const { toggleFavorite, favoriteLocations } = useLocationStore();
+    const isFavorite = location ? favoriteLocations.includes(location.id) : false;
 
     if (!location) {
         return null;
@@ -80,10 +83,17 @@ export default function LocationDetailPanel({
                 </button>
 
                 <button
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-[#16417F]"
+                    onClick={() => toggleFavorite(location.id)}
+                    className={`
+                        w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border
+                        ${isFavorite
+                            ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-[#16417F]'
+                        }
+                    `}
                 >
-                    <Star className="w-4 h-4" />
-                    <span>Add to Favorites</span>
+                    <Star className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+                    <span>{isFavorite ? 'Saved to Favorites' : 'Add to Favorites'}</span>
                 </button>
             </div>
         </motion.div>
