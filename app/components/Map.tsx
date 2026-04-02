@@ -6,6 +6,8 @@ import { useEffect } from "react";
 import { useLocationStore } from "../store/location";
 import { Bus, Building2, Utensils, TrainFront } from "lucide-react"
 import type { locationType, Location } from "../types/location";
+import { motion } from 'motion/react';
+
 
 
 export default function MapCard() {
@@ -41,14 +43,43 @@ export default function MapCard() {
     ];
 
 
+
     const renderCustomPin = (loc: Location) => {
         const pinOption = pinOptions.find(opt => opt.type === loc.type);
         return (
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md"
-                style={{ backgroundColor: pinOption?.color || '#87AFE8' }}
+            <motion.div
+                className="relative flex flex-col items-center"
+                initial="idle"
+                whileHover="hovered"
             >
-                {pinOption?.icon}
-            </div>
+                <motion.div
+                    variants={{
+                        idle: { opacity: 0, y: 4, pointerEvents: 'none' },
+                        hovered: { opacity: 1, y: 0, pointerEvents: 'auto' },
+                    }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md text-white shadow-md"
+                    style={{ backgroundColor: pinOption?.color || '#87AFE8' }}
+                >
+                    {loc.name}
+                </motion.div>
+
+                <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shadow-md"
+                    style={{ backgroundColor: pinOption?.color || '#87AFE8' }}
+                >
+                    {pinOption?.icon && (
+                        pinOption.icon
+                    )}
+                </div>
+                <div
+                    className="w-0 h-0 -mt-1"
+                    style={{
+                        borderLeft: '7px solid transparent',
+                        borderRight: '7px solid transparent',
+                    }}
+                />
+            </motion.div>
         );
     };
 
