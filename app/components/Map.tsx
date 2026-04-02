@@ -1,9 +1,12 @@
 "use client";
 
-import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { getLocations } from "../api/locations";
 import { useEffect } from "react";
 import { useLocationStore } from "../store/location";
+import { Bus, Building2, Utensils, TrainFront } from "lucide-react"
+import type { locationType, Location } from "../types/location";
+
 
 export default function MapCard() {
 
@@ -30,16 +33,24 @@ export default function MapCard() {
 
     });
 
-    const getMarkerColor = (type: string) => {
-        switch (type) {
-            case 'office': return '#16417F';
-            case 'restaurant': return '#B20018';
-            case 'train': return '#EAAD06';
-            case 'bus': return '#008064';
-            default: return '#87AFE8';
-        }
-    };
+    const pinOptions: { type: locationType; icon: React.ReactNode; color: string }[] = [
+        { type: 'office', icon: <Building2 />, color: '#16417F' },
+        { type: 'restaurant', icon: <Utensils />, color: '#B20018' },
+        { type: 'train', icon: <TrainFront />, color: '#EAAD06' },
+        { type: 'bus', icon: <Bus />, color: '#008064' },
+    ];
 
+
+    const renderCustomPin = (loc: Location) => {
+        const pinOption = pinOptions.find(opt => opt.type === loc.type);
+        return (
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md"
+                style={{ backgroundColor: pinOption?.color || '#87AFE8' }}
+            >
+                {pinOption?.icon}
+            </div>
+        );
+    };
 
     return (
         <div className="w-full h-full rounded-md overflow-hidden">
@@ -59,11 +70,7 @@ export default function MapCard() {
                             title={loc.name}
                             onClick={() => setSelectedLocation(loc)}
                         >
-                            <Pin
-                                background={getMarkerColor(loc.type)}
-                                borderColor={'#fff'}
-                                glyphColor={'#fff'}
-                            />
+                            {renderCustomPin(loc)}
                         </AdvancedMarker>
                     ))}
                 </Map>
