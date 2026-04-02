@@ -1,16 +1,32 @@
-import { Navigation, Star, X } from 'lucide-react';
+import { Navigation, Star, Building2, UtensilsCrossed, Train, Bus, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Location } from '../types/location';
 
 interface LocationDetailPanelProps {
-    location: Location;
+    location: Location | null;
     onClose: () => void;
 }
 
+const getLocationIcon = (type: Location['type']) => {
+    const iconClass = "w-10 h-10 text-[#041E42]";
+    switch (type) {
+        case 'office':
+            return <Building2 className={iconClass} />;
+        case 'restaurant':
+            return <UtensilsCrossed className={iconClass} />;
+        case 'train':
+            return <Train className={iconClass} />;
+        case 'bus':
+            return <Bus className={iconClass} />;
+    }
+};
+
+
 export default function LocationDetailPanel({
     location,
-    onClose
+    onClose,
 }: LocationDetailPanelProps) {
+
     if (!location) {
         return null;
     }
@@ -21,40 +37,51 @@ export default function LocationDetailPanel({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="h-full flex flex-col"
+            className="bg-white rounded-xl shadow-md overflow-hidden h-full flex flex-col px-4 py-2"
         >
-            <div className="p-6 border-b">
+            <div className="p-2 border-b border-gray-200">
                 <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <h2 className="text-lg font-semibold">{location.name}</h2>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className={`p-3 rounded-xl text-white shrink-0`}>
+                            {getLocationIcon(location.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h2 className="uppercase text-xl font-semibold text-gray-900 mb-1">
+                                {location.name}
+                            </h2>
+                        </div>
                     </div>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0 ml-2"
                         aria-label="Close panel"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-4 h-4 text-gray-600" />
                     </button>
                 </div>
-                <p className="text-sm text-gray-500">{location.type}</p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div>
-                    <h3 className="text-sm font-semibold mb-2">Description</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Details</h3>
+                    <p className="text-gray-700">
                         {location.description}
                     </p>
                 </div>
             </div>
 
-            <div className="p-6 border-t border-gray-300 space-y-3">
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors">
+            {/* Actions */}
+            <div className="p-6 border-t border-gray-200 space-y-3">
+                <button
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors"
+                >
                     <Navigation className="w-4 h-4" />
                     <span>Get Directions</span>
                 </button>
 
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                <button
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-[#16417F]"
+                >
                     <Star className="w-4 h-4" />
                     <span>Add to Favorites</span>
                 </button>

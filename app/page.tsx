@@ -17,12 +17,10 @@ export default function Home() {
       </div>
       <MapCard />
       {selectedLocation && (
-        <div className="bg-white rounded-xl shadow-sm border border-[var(--neutral-200)] overflow-hidden">
-          <LocationDetailPanel
-            location={selectedLocation}
-            onClose={() => setSelectedLocation(null)}
-          />
-        </div>
+        <LocationDetailPanel
+          location={selectedLocation}
+          onClose={() => setSelectedLocation(null)}
+        />
       )}
     </main>
   );
