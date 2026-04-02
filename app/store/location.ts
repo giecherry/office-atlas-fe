@@ -14,6 +14,9 @@ interface LocationStore {
     toggleFavoritesFilter: () => void;
     favoriteLocations: string[];
     toggleFavorite: (locationId: string) => void;
+
+    searchQuery: string;
+    setSearchQuery: (query: string) => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -54,6 +57,9 @@ export const useLocationStore = create<LocationStore>()(
                     : [...favoriteLocations, locationId];
                 set({ favoriteLocations: newFavorites });
             },
+
+            searchQuery: "",
+            setSearchQuery: (query) => set({ searchQuery: query }),
         }),
         {
             name: "location-store",

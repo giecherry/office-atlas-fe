@@ -10,7 +10,7 @@ import { Star } from "lucide-react"
 
 export default function MapCard() {
 
-    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations } = useLocationStore();
+    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery } = useLocationStore();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,9 +22,17 @@ export default function MapCard() {
     }, [setLocations]);
 
     const filteredLocations = locations.filter(loc => {
+        // Search filter
+        const matchesSearch = searchQuery.trim().length === 0 ||
+            loc.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+        // Type filter
         const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+
+        // Favorites filter
         const matchesFavoritesFilter = !showFavoritesOnly || favoriteLocations.includes(loc.id);
-        return matchesTypeFilter && matchesFavoritesFilter;
+
+        return matchesSearch && matchesTypeFilter && matchesFavoritesFilter;
     });
 
     const getMarkerColor = (type: string) => {
