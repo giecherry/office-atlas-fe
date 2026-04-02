@@ -1,16 +1,13 @@
 "use client";
 
-import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import { getLocations } from "../api/locations";
-import { useState, useEffect, useCallback } from "react";
-import { Location } from "../types/location";
+import { useEffect } from "react";
 import { useLocationStore } from "../store/location";
-import { Star } from "lucide-react"
-
 
 export default function MapCard() {
 
-    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery } = useLocationStore();
+    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery, setSelectedLocation } = useLocationStore();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,17 +19,15 @@ export default function MapCard() {
     }, [setLocations]);
 
     const filteredLocations = locations.filter(loc => {
-        // Search filter
         const matchesSearch = searchQuery.trim().length === 0 ||
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-        // Type filter
         const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
 
-        // Favorites filter
         const matchesFavoritesFilter = !showFavoritesOnly || favoriteLocations.includes(loc.id);
 
         return matchesSearch && matchesTypeFilter && matchesFavoritesFilter;
+
     });
 
     const getMarkerColor = (type: string) => {
@@ -45,56 +40,6 @@ export default function MapCard() {
         }
     };
 
-    const MarkerWithInfoWindow = ({ loc }: { loc: Location }) => {
-        const [markerRef, marker] = useAdvancedMarkerRef();
-        const [infoWindowShown, setInfoWindowShown] = useState(false);
-        const { toggleFavorite, favoriteLocations } = useLocationStore();
-        const isFavorite = favoriteLocations.includes(loc.id);
-
-        const handleMarkerClick = useCallback(
-            () => setInfoWindowShown(isShown => !isShown),
-            []
-        );
-
-        const handleClose = useCallback(() => setInfoWindowShown(false), []);
-
-        return (
-            <>
-                <AdvancedMarker
-                    ref={markerRef}
-                    position={{
-                        lat: Number(loc.coordinates.lat),
-                        lng: Number(loc.coordinates.lng)
-                    }}
-                    title={loc.name}
-                    onClick={handleMarkerClick}
-                >
-                    <Pin
-                        background={getMarkerColor(loc.type)}
-                        borderColor={'#fff'}
-                        glyphColor={'#fff'}
-                    />
-                </AdvancedMarker>
-
-                {infoWindowShown && (
-                    <InfoWindow anchor={marker} onClose={handleClose}>
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <h1>{loc.name}</h1>
-                                <p>{loc.description}</p>
-                            </div>
-                            <button
-                                onClick={() => toggleFavorite(loc.id)}
-                                className="text-2xl"
-                            >
-                                {isFavorite ? <Star fill='yellow' /> : <Star />}
-                            </button>
-                        </div>
-                    </InfoWindow>
-                )}
-            </>
-        );
-    };
 
     return (
         <div className="w-full h-200 p-6 bg-white rounded-xl shadow-md overflow-hidden lg:h-150">
@@ -106,7 +51,21 @@ export default function MapCard() {
                         mapId="YOUR_MAP_ID"
                     >
                         {filteredLocations && filteredLocations.map((loc) => (
-                            <MarkerWithInfoWindow key={loc.id} loc={loc} />
+                            <AdvancedMarker
+                                key={loc.id}
+                                position={{
+                                    lat: Number(loc.coordinates.lat),
+                                    lng: Number(loc.coordinates.lng)
+                                }}
+                                title={loc.name}
+                                onClick={() => setSelectedLocation(loc)}
+                            >
+                                <Pin
+                                    background={getMarkerColor(loc.type)}
+                                    borderColor={'#fff'}
+                                    glyphColor={'#fff'}
+                                />
+                            </AdvancedMarker>
                         ))}
                     </Map>
                 </APIProvider>

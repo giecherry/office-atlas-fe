@@ -17,6 +17,9 @@ interface LocationStore {
 
     searchQuery: string;
     setSearchQuery: (query: string) => void;
+
+    selectedLocation: Location | null;
+    setSelectedLocation: (location: Location | null) => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -60,6 +63,9 @@ export const useLocationStore = create<LocationStore>()(
 
             searchQuery: "",
             setSearchQuery: (query) => set({ searchQuery: query }),
+
+            selectedLocation: null,
+            setSelectedLocation: (location) => set({ selectedLocation: location }),
         }),
         {
             name: "location-store",

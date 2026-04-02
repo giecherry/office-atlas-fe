@@ -3,9 +3,11 @@
 import Filters from "./components/Filters";
 import MapCard from "./components/Map";
 import Search from "./components/Search";
-
+import LocationDetailPanel from "./components/LocationDetailPanel";
+import { useLocationStore } from "./store/location";
 
 export default function Home() {
+  const { selectedLocation, setSelectedLocation } = useLocationStore();
 
   return (
     <main className="flex flex-1 w-full flex-col items-center py-32 px-2 lg:px-16 bg-[#E4E9F1] dark:bg-black sm:items-start">
@@ -14,6 +16,14 @@ export default function Home() {
         <Filters />
       </div>
       <MapCard />
+      {selectedLocation && (
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--neutral-200)] overflow-hidden">
+          <LocationDetailPanel
+            location={selectedLocation}
+            onClose={() => setSelectedLocation(null)}
+          />
+        </div>
+      )}
     </main>
   );
 }
