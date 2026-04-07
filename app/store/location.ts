@@ -20,6 +20,9 @@ interface LocationStore {
 
     selectedLocation: Location | null;
     setSelectedLocation: (location: Location | null) => void;
+
+    userLocation: google.maps.LatLngLiteral | null;
+    setUserLocation: (location: google.maps.LatLngLiteral | null) => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -66,6 +69,9 @@ export const useLocationStore = create<LocationStore>()(
 
             selectedLocation: null,
             setSelectedLocation: (location) => set({ selectedLocation: location }),
+
+            userLocation: null,
+            setUserLocation: (location) => set({ userLocation: location }),
         }),
         {
             name: "location-store",
