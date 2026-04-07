@@ -9,6 +9,7 @@ interface LocationStore {
     setActiveFilters: (filters: locationType[]) => void;
     toggleFilter: (filter: locationType | 'all') => void;
     clearFilters: () => void;
+    latestFilter: locationType | null;
 
     showFavoritesOnly: boolean;
     toggleFavoritesFilter: () => void;
@@ -30,23 +31,24 @@ export const useLocationStore = create<LocationStore>()(
 
             activeFilters: [],
             setActiveFilters: (filters) => set({ activeFilters: filters }),
+            latestFilter: null,
 
             toggleFilter: (filter) => {
                 const { activeFilters, showFavoritesOnly } = get();
 
                 if (filter === 'all') {
                     if (showFavoritesOnly || activeFilters.length > 0) {
-                        set({ activeFilters: [], showFavoritesOnly: false });
+                        set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null });
                     }
                 } else {
                     const newFilters = activeFilters.includes(filter)
                         ? activeFilters.filter(f => f !== filter)
                         : [...activeFilters, filter];
-                    set({ activeFilters: newFilters });
+                    set({ activeFilters: newFilters, latestFilter: filter });
                 }
             },
 
-            clearFilters: () => set({ activeFilters: [], showFavoritesOnly: false }),
+            clearFilters: () => set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null }),
             showFavoritesOnly: false,
             toggleFavoritesFilter: () => {
                 set({ showFavoritesOnly: !get().showFavoritesOnly });
