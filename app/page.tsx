@@ -4,11 +4,13 @@ import Filters from "./components/Filters";
 import MapCard from "./components/Map";
 import Search from "./components/Search";
 import LocationDetailPanel from "./components/LocationDetailPanel";
+import ResultList from "./components/ResultList";
 import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 
 export default function Home() {
-  const { selectedLocation, setSelectedLocation } = useLocationStore();
+  const { selectedLocation, setSelectedLocation, latestFilter, showFavoritesOnly } = useLocationStore();
+  const showingAll = latestFilter === null && !showFavoritesOnly;
 
   return (
     <>
@@ -20,6 +22,14 @@ export default function Home() {
 
         <LayoutGroup>
           <div className="flex flex-col md:flex-row flex-1 gap-4 p-2 md:p-4 lg:p-6 md:overflow-hidden">
+            {!showingAll && (
+              <div className="hidden md:flex flex-col flex-shrink-0" style={{ width: 288 }}>
+                <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
+                  <ResultList />
+                </div>
+              </div>
+            )}
+
             <motion.div
               className="flex-1 p-6 bg-white rounded-xl shadow-md overflow-hidden"
               layout
