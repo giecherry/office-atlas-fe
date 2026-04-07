@@ -40,30 +40,28 @@ function LocateMeControl() {
                 const prev = lastPosRef.current;
 
                 const distance = prev ? getDistance(prev, newPos) : Infinity;
+                const isFirstFix = !prev;
 
-                const hasMoved = distance > distance_threshold_meters;
+                const hasMoved = isFirstFix || distance > distance_threshold_meters;
                 if (!hasMoved) {
                     setLoading(false);
                     return;
                 }
 
-                const shouldPan = !hasFixRef.current || distance > pan_threshold_meters;
+                const shouldPan = isFirstFix || distance > pan_threshold_meters;
 
                 lastPosRef.current = newPos;
                 setUserLocation(newPos);
 
                 if (shouldPan) {
-                    if (!hasFixRef.current) {
-                        map?.setZoom(15);
-                    }
+                    if (isFirstFix) map?.setZoom(15);
                     map?.panTo(newPos);
                     hasFixRef.current = true;
                 }
-
                 setLoading(false);
             },
             () => setLoading(false),
-            { timeout: 10000 }
+            { timeout: 10000, enableHighAccuracy: true }
         );
     }, [map, setUserLocation]);
 
