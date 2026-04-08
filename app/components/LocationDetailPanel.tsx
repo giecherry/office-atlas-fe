@@ -1,7 +1,6 @@
 import { Navigation, Star, Building2, UtensilsCrossed, Train, Bus, X, MapPin, Clock, Phone, Globe, Search } from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
-import { useState } from 'react';
 
 interface LocationDetailPanelProps {
     location: Location | null;
@@ -43,7 +42,7 @@ export default function LocationDetailPanel({
     location,
     onClose,
 }: LocationDetailPanelProps) {
-    const { toggleFavorite, favoriteLocations, isNavigating, setIsNavigating, userLocation } = useLocationStore();
+    const { toggleFavorite, favoriteLocations, isNavigating, setIsNavigating, userLocation, setShowNearbySearch } = useLocationStore();
 
     const isFavorite = location ? favoriteLocations.includes(location.id) : false;
     const isOffice = location?.type === 'office';
@@ -170,6 +169,7 @@ export default function LocationDetailPanel({
                 {isOffice && (
                     <div>
                         <button
+                            onClick={() => setShowNearbySearch(true)}
                             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-medium transition-colors"
                         >
                             <Search className="w-4 h-4" />

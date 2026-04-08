@@ -143,7 +143,7 @@ function DirectionsComponent() {
 }
 
 export default function MapCard() {
-    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery, setSelectedLocation } = useLocationStore();
+    const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery, setSelectedLocation, selectedLocation, showNearbySearch, nearbyLocations } = useLocationStore();
 
 
 
@@ -167,25 +167,48 @@ export default function MapCard() {
     const filteredLocations = locations.filter(loc => {
         const matchesSearch = searchQuery.trim().length === 0 ||
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+
+        const isSelectedOffice = selectedLocation?.id === loc.id && selectedLocation?.type === 'office';
+        const matchesTypeFilter = isSelectedOffice || activeFilters.length === 0 || activeFilters.includes(loc.type);
+
         const matchesFavoritesFilter = !showFavoritesOnly || favoriteLocations.includes(loc.id);
         return matchesSearch && matchesTypeFilter && matchesFavoritesFilter;
     });
 
+    const nearbyFiltered = (Array.isArray(nearbyLocations) ? nearbyLocations : []).filter(loc =>
+        activeFilters.length === 0 || activeFilters.includes(loc.type)
+    );
+
+    const locationsToDisplay = showNearbySearch
+        ? [
+            ...(selectedLocation && !nearbyFiltered.some(loc => loc.id === selectedLocation.id)
+                ? [selectedLocation]
+                : []),
+            ...nearbyFiltered
+        ]
+        : [
+            ...(selectedLocation && !filteredLocations.some(loc => loc.id === selectedLocation.id) ? [selectedLocation] : []),
+            ...filteredLocations
+        ];
+
     const pinOptions: { type: locationType; icon: React.ReactNode; color: string }[] = [
-        { type: 'office', icon: <Building2 />, color: '#16417F' },
-        { type: 'restaurant', icon: <Utensils />, color: '#B20018' },
-        { type: 'train', icon: <TrainFront />, color: '#EAAD06' },
-        { type: 'bus', icon: <Bus />, color: '#008064' },
+        { type: 'office', icon: <Building2 size={18} />, color: '#16417F' },
+        { type: 'restaurant', icon: <Utensils size={18} />, color: '#B20018' },
+        { type: 'train', icon: <TrainFront size={18} />, color: '#EAAD06' },
+        { type: 'bus', icon: <Bus size={18} />, color: '#008064' },
     ];
 
-    const renderCustomPin = (loc: Location) => {
+    const renderCustomPin = (loc: Location, isSelected: boolean = false) => {
         const pinOption = pinOptions.find(opt => opt.type === loc.type);
+        const pinColor = isSelected ? '#4A89F3' : (pinOption?.color || '#87AFE8');
+
         return (
             <motion.div
                 className="relative flex flex-col items-center"
                 initial="idle"
                 whileHover="hovered"
+                animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
+                transition={isSelected ? { duration: 1.5, repeat: Infinity } : {}}
             >
                 <motion.div
                     variants={{
@@ -194,25 +217,23 @@ export default function MapCard() {
                     }}
                     transition={{ duration: 0.15, ease: 'easeOut' }}
                     className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md text-white shadow-md"
-                    style={{ backgroundColor: pinOption?.color || '#87AFE8' }}
+                    style={{ backgroundColor: pinColor }}
                 >
                     {loc.name}
                 </motion.div>
 
                 <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shadow-md"
-                    style={{ backgroundColor: pinOption?.color || '#87AFE8' }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-md"
+                    style={{ backgroundColor: pinColor }}
                 >
-                    {pinOption?.icon && (
-                        pinOption.icon
-                    )}
+                    {pinOption?.icon && pinOption.icon}
                 </div>
                 <div
                     className="w-0 h-0 -mt-1"
                     style={{
                         borderLeft: '7px solid transparent',
                         borderRight: '7px solid transparent',
-                        borderTop: `9px solid ${pinOption?.color || '#87AFE8'}`,
+                        borderTop: `9px solid ${pinColor}`,
                     }}
                 />
             </motion.div>
@@ -230,19 +251,23 @@ export default function MapCard() {
                     <LocateMeControl />
                     <DirectionsComponent />
 
-                    {filteredLocations.map((loc) => (
-                        <AdvancedMarker
-                            key={loc.id}
-                            position={{
-                                lat: Number(loc.coordinates.lat),
-                                lng: Number(loc.coordinates.lng)
-                            }}
-                            title={loc.name}
-                            onClick={() => setSelectedLocation(loc)}
-                        >
-                            {renderCustomPin(loc)}
-                        </AdvancedMarker>
-                    ))}
+                    {locationsToDisplay.map((loc) => {
+                        const isSelected = selectedLocation?.id === loc.id;
+
+                        return (
+                            <AdvancedMarker
+                                key={loc.id}
+                                position={{
+                                    lat: Number(loc.coordinates.lat),
+                                    lng: Number(loc.coordinates.lng)
+                                }}
+                                title={loc.name}
+                                onClick={() => setSelectedLocation(loc)}
+                            >
+                                {renderCustomPin(loc, isSelected)}
+                            </AdvancedMarker>
+                        );
+                    })}
                 </Map>
             </APIProvider>
         </div>

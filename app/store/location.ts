@@ -27,7 +27,16 @@ interface LocationStore {
 
     isNavigating: boolean;
     setIsNavigating: (value: boolean) => void;
+
+
+    showNearbySearch: boolean;
+    setShowNearbySearch: (value: boolean) => void;
+    nearbyLocations: Location[];
+    setNearbyLocations: (locations: Location[]) => void;
+    nearbySearchRadius: number;
+    setNearbySearchRadius: (radius: number) => void;
 }
+
 
 export const useLocationStore = create<LocationStore>()(
     persist(
@@ -35,22 +44,32 @@ export const useLocationStore = create<LocationStore>()(
             locations: [],
             setLocations: (locations) => set({ locations }),
 
-            activeFilters: [],
+            activeFilters: ['office'],
             setActiveFilters: (filters) => set({ activeFilters: filters }),
-            latestFilter: null,
+            latestFilter: 'office',
 
             toggleFilter: (filter) => {
-                const { activeFilters, showFavoritesOnly } = get();
+                const { activeFilters, showFavoritesOnly, showNearbySearch } = get();
 
                 if (filter === 'all') {
                     if (showFavoritesOnly || activeFilters.length > 0) {
                         set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null });
                     }
                 } else {
-                    const newFilters = activeFilters.includes(filter)
-                        ? activeFilters.filter(f => f !== filter)
-                        : [...activeFilters, filter];
-                    set({ activeFilters: newFilters, latestFilter: filter });
+                    if (showNearbySearch) {
+                        // Multi-select for NearbySearch
+                        const newFilters = activeFilters.includes(filter)
+                            ? activeFilters.filter(f => f !== filter)
+                            : [...activeFilters, filter];
+                        set({ activeFilters: newFilters, latestFilter: filter });
+                    } else {
+                        // Single-select for ResultList
+                        if (activeFilters.includes(filter) && activeFilters.length === 1) {
+                            set({ activeFilters: [], latestFilter: null });
+                        } else {
+                            set({ activeFilters: [filter], latestFilter: filter });
+                        }
+                    }
                 }
             },
 
@@ -80,6 +99,18 @@ export const useLocationStore = create<LocationStore>()(
 
             isNavigating: false,
             setIsNavigating: (value) => set({ isNavigating: value }),
+
+            showNearbySearch: false,
+            setShowNearbySearch: (value) => {
+                if (value) {
+                    set({ showNearbySearch: true, activeFilters: [] });
+                } else {
+                    set({ showNearbySearch: false, activeFilters: ['office'] });
+                }
+            }, nearbyLocations: [],
+            setNearbyLocations: (locations) => set({ nearbyLocations: locations }),
+            nearbySearchRadius: 1000,
+            setNearbySearchRadius: (radius) => set({ nearbySearchRadius: radius }),
         }),
         {
             name: "location-store",

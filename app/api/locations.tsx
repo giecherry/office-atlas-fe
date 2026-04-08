@@ -21,5 +21,6 @@ export async function getLocationsInBounds(type?: string) {
 export async function getNearbyLocations(officeId: string, radius: number = 1000, type?: string) {
     const typeParam = type ? `&type=${type}` : '';
     const res = await fetch(`${BASE}/locations/nearby/${officeId}?radius=${radius}${typeParam}`);
-    return res.json();
+    const data = await res.json();
+    return Array.isArray(data) ? data : data?.data || data?.nearbyLocations || [];
 }

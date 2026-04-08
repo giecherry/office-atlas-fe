@@ -7,10 +7,10 @@ import LocationDetailPanel from "./components/LocationDetailPanel";
 import ResultList from "./components/ResultList";
 import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import NearbySearch from "./components/NearbySearch";
 
 export default function Home() {
-  const { selectedLocation, setSelectedLocation, latestFilter, showFavoritesOnly } = useLocationStore();
-  const showingAll = latestFilter === null && !showFavoritesOnly;
+  const { selectedLocation, setSelectedLocation, showNearbySearch } = useLocationStore();
 
   return (
     <>
@@ -22,13 +22,15 @@ export default function Home() {
 
         <LayoutGroup>
           <div className="flex flex-col md:flex-row flex-1 gap-4 p-2 md:p-4 lg:p-6 md:overflow-hidden">
-            {!showingAll && (
-              <div className="hidden md:flex flex-col flex-shrink-0" style={{ width: 288 }}>
-                <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
+            <div className="hidden md:flex flex-col shrink-0" style={{ width: 288 }}>
+              <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
+                {showNearbySearch ? (
+                  <NearbySearch />
+                ) : (
                   <ResultList />
-                </div>
+                )}
               </div>
-            )}
+            </div>
 
             <motion.div
               className="flex-1 p-6 bg-white rounded-xl shadow-md overflow-hidden"
