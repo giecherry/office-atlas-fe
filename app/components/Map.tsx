@@ -1,6 +1,6 @@
 "use client";
 
-import { APIProvider, Map, AdvancedMarker, MapControl, ControlPosition, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, MapControl, ControlPosition, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { getLocations } from "../api/locations";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocationStore } from "../store/location";
@@ -103,6 +103,45 @@ function LocateMeControl() {
     );
 }
 
+function DirectionsComponent() {
+    const map = useMap();
+    const routesLibrary = useMapsLibrary('routes');
+    const { userLocation, selectedLocation, isNavigating } = useLocationStore();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [directionsService, setDirectionsService] = useState<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [directionsRenderer, setDirectionsRenderer] = useState<any>(null);
+
+    useEffect(() => {
+        if (!routesLibrary || !map) return;
+        const renderer = new routesLibrary.DirectionsRenderer({ map, suppressMarkers: true });
+        setDirectionsService(new routesLibrary.DirectionsService());
+        setDirectionsRenderer(renderer);
+        return () => renderer.setMap(null);
+    }, [routesLibrary, map]);
+
+    useEffect(() => {
+        if (!directionsService || !directionsRenderer) return;
+        if (!isNavigating || !userLocation || !selectedLocation) {
+            directionsRenderer.setMap(null);
+            return;
+        }
+        directionsRenderer.setMap(map);
+        directionsService.route({
+            origin: userLocation,
+            destination: {
+                lat: Number(selectedLocation.coordinates.lat),
+                lng: Number(selectedLocation.coordinates.lng),
+            },
+            travelMode: 'WALKING',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        }).then((result: any) => directionsRenderer.setDirections(result))
+          .catch(() => directionsRenderer.setMap(null));
+    }, [directionsService, directionsRenderer, isNavigating, userLocation, selectedLocation, map]);
+
+    return null;
+}
+
 export default function MapCard() {
     const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery, setSelectedLocation } = useLocationStore();
 
@@ -178,6 +217,7 @@ export default function MapCard() {
                     mapId="YOUR_MAP_ID"
                 >
                     <LocateMeControl />
+                    <DirectionsComponent />
 
                     {filteredLocations.map((loc) => (
                         <AdvancedMarker
