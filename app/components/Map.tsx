@@ -1,7 +1,7 @@
 "use client";
 
 import { APIProvider, Map, AdvancedMarker, MapControl, ControlPosition, useMap } from '@vis.gl/react-google-maps';
-import { getLocations } from "../api/locations";
+import { getLocations, getLocationsInBounds } from "../api/locations";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocationStore } from "../store/location";
 import { Bus, Building2, Utensils, TrainFront, LocateFixed, Loader2 } from "lucide-react";
@@ -106,13 +106,24 @@ function LocateMeControl() {
 export default function MapCard() {
     const { locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations, searchQuery, setSelectedLocation } = useLocationStore();
 
+
+
     useEffect(() => {
         const fetchData = async () => {
-            const locations = await getLocations();
-            setLocations(locations);
+            try {
+                const officesData = await getLocations('office');
+                const inBoundsData = await getLocationsInBounds();
+
+                setLocations([...officesData, ...inBoundsData]);
+
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
         };
         fetchData();
     }, [setLocations]);
+
+
 
     const filteredLocations = locations.filter(loc => {
         const matchesSearch = searchQuery.trim().length === 0 ||
