@@ -24,6 +24,9 @@ interface LocationStore {
 
     userLocation: google.maps.LatLngLiteral | null;
     setUserLocation: (location: google.maps.LatLngLiteral | null) => void;
+
+    isNavigating: boolean;
+    setIsNavigating: (value: boolean) => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -70,10 +73,13 @@ export const useLocationStore = create<LocationStore>()(
             setSearchQuery: (query) => set({ searchQuery: query }),
 
             selectedLocation: null,
-            setSelectedLocation: (location) => set({ selectedLocation: location }),
+            setSelectedLocation: (location) => set({ selectedLocation: location, ...(location === null ? { isNavigating: false } : {}) }),
 
             userLocation: null,
             setUserLocation: (location) => set({ userLocation: location }),
+
+            isNavigating: false,
+            setIsNavigating: (value) => set({ isNavigating: value }),
         }),
         {
             name: "location-store",

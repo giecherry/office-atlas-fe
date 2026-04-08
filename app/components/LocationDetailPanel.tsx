@@ -25,7 +25,7 @@ export default function LocationDetailPanel({
     location,
     onClose,
 }: LocationDetailPanelProps) {
-    const { toggleFavorite, favoriteLocations } = useLocationStore();
+    const { toggleFavorite, favoriteLocations, isNavigating, setIsNavigating, userLocation } = useLocationStore();
     const isFavorite = location ? favoriteLocations.includes(location.id) : false;
 
     if (!location) {
@@ -67,10 +67,13 @@ export default function LocationDetailPanel({
 
             <div className="p-6 border-t border-gray-200 space-y-3">
                 <button
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors"
+                    onClick={() => setIsNavigating(!isNavigating)}
+                    disabled={!userLocation}
+                    title={!userLocation ? "Aktivera din plats först" : undefined}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <Navigation className="w-4 h-4" />
-                    <span>Get Directions</span>
+                    <span>{isNavigating ? "Avsluta navigering" : "Get Directions"}</span>
                 </button>
 
                 <button
