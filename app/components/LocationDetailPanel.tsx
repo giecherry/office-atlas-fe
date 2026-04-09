@@ -166,7 +166,7 @@ export default function LocationDetailPanel({
                     </>
                 )}
 
-                {isOffice && (
+                {/* {isOffice && (
                     <div>
                         <button
                             onClick={() => setShowNearbySearch(true)}
@@ -176,7 +176,7 @@ export default function LocationDetailPanel({
                             <span>Explore Nearby</span>
                         </button>
                     </div>
-                )}
+                )} */}
             </div>
 
             <div className="p-6 border-t border-gray-200 space-y-3">
