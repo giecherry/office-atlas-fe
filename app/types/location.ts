@@ -27,17 +27,6 @@ export interface Location {
     openingHours?: {
         weekdayDescriptions?: string[];
     };
-    photos?: Array<{
-        name: string;
-        heightPx?: number;
-        widthPx?: number;
-        flagContentUri?: string;
-        authorAttributions?: Array<{
-            displayName: string;
-            uri?: string;
-            photoUri?: string;
-        }>;
-    }>;
     distance_km?: number;
     created_at?: string;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { APIProvider, Map, AdvancedMarker, MapControl, ControlPosition, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
-import { getLocations, getLocationsInBounds } from "../api/locations";
+import { getLocations } from "../api/locations";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocationStore } from "../store/location";
 import { Bus, Building2, Utensils, TrainFront, LocateFixed, Loader2 } from "lucide-react";
@@ -150,10 +150,8 @@ export default function MapCard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const officesData = await getLocations('office');
-                const inBoundsData = await getLocationsInBounds();
-
-                setLocations([...officesData, ...inBoundsData]);
+                const allLocations = await getLocations();
+                setLocations(allLocations);
 
             } catch (error) {
                 console.error('Error fetching locations:', error);

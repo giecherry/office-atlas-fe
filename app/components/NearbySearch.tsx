@@ -31,7 +31,7 @@ export default function NearbySearch() {
 
     useEffect(() => {
         const fetchNearby = async () => {
-            if (!selectedLocation) return;
+            if (!selectedLocation || selectedLocation.type !== 'office') return;
             setLoading(true);
             try {
                 const data = await getNearbyLocations(selectedLocation.id, nearbySearchRadius);

@@ -1,16 +1,24 @@
 'use client'
 
 import Filters from "./components/Filters";
-import MapCard from "./components/Map";
 import Search from "./components/Search";
 import LocationDetailPanel from "./components/LocationDetailPanel";
 import ResultList from "./components/ResultList";
 import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import NearbySearch from "./components/NearbySearch";
+import dynamic from "next/dynamic";
+import { useMemo } from "react";
 
 export default function Home() {
   const { selectedLocation, setSelectedLocation, showNearbySearch } = useLocationStore();
+  const MapCard = useMemo(() => dynamic(
+    () => import('./components/MapCard'),
+    {
+      loading: () => <p>Map loading...</p>,
+      ssr: false
+    }
+  ), []);
 
   return (
     <>
