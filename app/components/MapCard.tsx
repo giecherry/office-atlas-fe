@@ -1,6 +1,6 @@
 "use client";
 
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useLocationStore } from "../store/location";
 import { getLocations } from "../api/locations";
@@ -48,15 +48,32 @@ export default function MapCard() {
     return (
         <div className="w-full h-full rounded-md overflow-hidden">
             <MapContainer
-                center={[59.204, 17.611]}
-                zoom={11}
-                scrollWheelZoom={false}
+                center={[59.180, 17.630]}
+                zoom={12.5}
+                scrollWheelZoom={true}
+                touchZoom={true}
                 style={{ height: "100%", width: "100%" }}
             >
-                <TileLayer
-                    attribution='&copy; OpenStreetMap contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+                <LayersControl>
+                    <LayersControl.BaseLayer name="Street Map">
+                        <TileLayer
+                            attribution='&copy; OpenStreetMap contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer checked name="Satellite">
+                        <TileLayer
+                            attribution='&copy; Esri'
+                            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                        />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer name="Terrain">
+                        <TileLayer
+                            attribution='&copy; OpenTopoMap'
+                            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                        />
+                    </LayersControl.BaseLayer>
+                </LayersControl>
                 <LocateButton />
                 {locationsToDisplay.map(loc => (
                     <CustomMarker

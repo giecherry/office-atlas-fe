@@ -1,5 +1,5 @@
 import { useMap } from "react-leaflet";
-import L from 'leaflet';
+import L, { Control } from 'leaflet';
 import { useEffect, useCallback, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { useLocationStore } from "../../store/location";
@@ -43,12 +43,12 @@ export function LocateButton() {
 
     useEffect(() => {
         if (!map) return;
-        const control = L.control({ position: 'bottomright' });
+        const control = new Control({ position: 'bottomright' });
         const iconHTML = renderToStaticMarkup(<LocateFixed size={28} />);
         control.onAdd = () => {
             const div = L.DomUtil.create('div', 'user-marker');
             div.innerHTML = `
-                <button class="w-10 h-10 flex items-center justify-center text-[#16417F] bg-white rounded-xl hover:bg-[#16417F]  hover:text-white transition-all cursor-pointer" id="locateBtn">
+                <button class="w-10 h-10 flex items-center justify-center text-[#16417F] bg-white rounded-xl hover:bg-[#16417F]  hover:text-white transition-all cursor-pointer shadow-lg" id="locateBtn">
                     ${iconHTML}
                 </button>
             `;
