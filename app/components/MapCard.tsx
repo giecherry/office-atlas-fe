@@ -1,6 +1,6 @@
 "use client";
 
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useLocationStore } from "../store/location";
 import { getLocations } from "../api/locations";
@@ -9,6 +9,21 @@ import { CustomMarker } from "./MapComponents/CustomMarker";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
+
+function MapZoomController() {
+    const map = useMap();
+    const { selectedLocation } = useLocationStore();
+
+    useEffect(() => {
+        if (selectedLocation) {
+            const lat = Number(selectedLocation.coordinates.lat);
+            const lng = Number(selectedLocation.coordinates.lng);
+            map.flyTo([lat, lng], 15, { duration: 0.6 });
+        }
+    }, [selectedLocation, map]);
+
+    return null;
+}
 
 
 export default function MapCard() {
@@ -78,6 +93,7 @@ export default function MapCard() {
                         />
                     </LayersControl.BaseLayer>
                 </LayersControl>
+                <MapZoomController />
                 <LocateButton />
                 {locationsToDisplay.map(loc => (
                     <CustomMarker
