@@ -6,6 +6,7 @@ import { useLocationStore } from "../store/location";
 import { getLocations } from "../api/locations";
 import { LocateButton } from "./MapComponents/LocateButton";
 import { CustomMarker } from "./MapComponents/CustomMarker";
+import Navigation from "./Navigation";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
@@ -95,6 +96,7 @@ export default function MapCard() {
                 </LayersControl>
                 <MapZoomController />
                 <LocateButton />
+                <Navigation />
                 {locationsToDisplay.map(loc => (
                     <CustomMarker
                         key={loc.id}
