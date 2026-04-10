@@ -1,6 +1,5 @@
 'use client'
 
-import Filters from "./components/Filters";
 import Search from "./components/Search";
 import LocationDetailPanel from "./components/LocationDetailPanel";
 import ResultList from "./components/ResultList";
@@ -11,7 +10,7 @@ import dynamic from "next/dynamic";
 import { useMemo } from "react";
 
 export default function Home() {
-  const { selectedLocation, setSelectedLocation, showNearbySearch } = useLocationStore();
+  const { selectedLocation, setSelectedLocation, showNearbySearch, setShowNearbySearch } = useLocationStore();
   const MapCard = useMemo(() => dynamic(
     () => import('./components/MapCard'),
     {
@@ -23,14 +22,13 @@ export default function Home() {
   return (
     <>
       <main className="flex flex-col h-screen pt-16 bg-[#E4E9F1]">
-        <div className="bg-white flex flex-col gap-4 rounded-xl shadow-md p-4 md:p-6 m-2 md:m-4 lg:m-6">
+        <div className="p-2 md:p-4 lg:pb-0 lg:p-6">
           <Search />
-          <Filters />
         </div>
 
         <LayoutGroup>
           <div className="flex flex-col md:flex-row flex-1 gap-4 p-2 md:p-4 lg:p-6 md:overflow-hidden">
-            <div className="hidden md:flex flex-col shrink-0" style={{ width: 288 }}>
+            <div className="hidden md:flex flex-col shrink-0" style={{ width: 350 }}>
               <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
                 {showNearbySearch ? (
                   <NearbySearch />
@@ -53,24 +51,27 @@ export default function Home() {
                 <motion.div
                   key="desktop-panel"
                   initial={{ width: 0 }}
-                  animate={{ width: 384 }}
+                  animate={{ width: 320 }}
                   exit={{ width: 0 }}
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
                   style={{ flexShrink: 0, overflow: 'hidden' }}
                   className="hidden md:flex flex-col"
                 >
                   <motion.div
-                    initial={{ x: 384 }}
+                    initial={{ x: 320 }}
                     animate={{ x: 0 }}
-                    exit={{ x: 384 }}
+                    exit={{ x: 320 }}
                     transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    style={{ width: 384 }}
+                    style={{ width: 320 }}
                     className="flex flex-col h-full"
                   >
                     <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
                       <LocationDetailPanel
                         location={selectedLocation}
-                        onClose={() => setSelectedLocation(null)}
+                        onClose={() => {
+                          setSelectedLocation(null);
+                          setShowNearbySearch(false);
+                        }}
                       />
                     </div>
                   </motion.div>
@@ -91,7 +92,10 @@ export default function Home() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="md:hidden fixed bottom-0 left-0 right-0 top-0 z-40 bg-black/30"
-              onClick={() => setSelectedLocation(null)}
+              onClick={() => {
+                setSelectedLocation(null);
+                setShowNearbySearch(false);
+              }}
             />
 
             <motion.div
@@ -108,7 +112,10 @@ export default function Home() {
               </div>
               <LocationDetailPanel
                 location={selectedLocation}
-                onClose={() => setSelectedLocation(null)}
+                onClose={() => {
+                  setSelectedLocation(null);
+                  setShowNearbySearch(false);
+                }}
               />
             </motion.div>
           </>

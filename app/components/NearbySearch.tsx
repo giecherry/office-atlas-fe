@@ -3,8 +3,8 @@
 import { Building2, UtensilsCrossed, Train, Bus, X } from 'lucide-react';
 import { useLocationStore } from '../store/location';
 import { useEffect, useState } from 'react';
-import { getNearbyLocations } from '../api/locations';
 import type { locationType } from '../types/location';
+import Filters from './Filters';
 
 const typeConfig: Record<locationType, { icon: React.ReactNode; color: string; label: string }> = {
     office: { icon: <Building2 className="w-4 h-4" />, color: '#16417F', label: 'Office' },
@@ -34,8 +34,9 @@ export default function NearbySearch() {
             if (!selectedLocation || selectedLocation.type !== 'office') return;
             setLoading(true);
             try {
-                const data = await getNearbyLocations(selectedLocation.id, nearbySearchRadius);
-                setNearbyLocations(data);
+                /* const data = await getNearbyLocations(selectedLocation.id, nearbySearchRadius);
+                setNearbyLocations(data); */
+                console.log('Fetching nearby locations for', selectedLocation.name, 'with radius', nearbySearchRadius);
             } catch (error) {
                 console.error('Error fetching nearby locations:', error);
             } finally {
@@ -78,7 +79,7 @@ export default function NearbySearch() {
                     </button>
                 </div>
 
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-3">
                     <label className="text-xs font-medium text-gray-600 whitespace-nowrap">
                         Radius:
                     </label>
@@ -95,8 +96,8 @@ export default function NearbySearch() {
                         {Math.round(nearbySearchRadius / 1000 * 10) / 10} km
                     </span>
                 </div>
+                <Filters />
             </div>
-
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
                 {loading ? (
                     <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
