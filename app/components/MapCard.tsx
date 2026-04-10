@@ -1,6 +1,6 @@
 "use client";
 
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useLocationStore } from "../store/location";
 import { getLocations } from "../api/locations";
@@ -11,11 +11,27 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 
+function MapZoomController() {
+    const map = useMap();
+    const { selectedLocation } = useLocationStore();
+
+    useEffect(() => {
+        if (selectedLocation) {
+            const lat = Number(selectedLocation.coordinates.lat);
+            const lng = Number(selectedLocation.coordinates.lng);
+            map.flyTo([lat, lng], 15, { duration: 0.6 });
+        }
+    }, [selectedLocation, map]);
+
+    return null;
+}
+
 
 export default function MapCard() {
     const {
-        locations, setLocations, activeFilters, showFavoritesOnly, favoriteLocations,
-        searchQuery, setSelectedLocation, selectedLocation
+        locations, setLocations, activeFilters,
+        searchQuery, setSelectedLocation, selectedLocation,
+        showNearbySearch, nearbyLocations
     } = useLocationStore();
 
     const [hoveredLocationId, setHoveredLocationId] = useState<string | null>(null);
@@ -23,28 +39,31 @@ export default function MapCard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const allLocations = await getLocations();
-                setLocations(allLocations);
+                const offices = await getLocations();
+                setLocations(offices);
             } catch (error) {
-                console.error('Error fetching locations:', error);
+                console.error('Error fetching offices:', error);
             }
         };
         fetchData();
     }, [setLocations]);
 
-    const filteredLocations = locations.filter(loc => {
+    const filteredLocations = (showNearbySearch ? nearbyLocations : locations).filter(loc => {
         const matchesSearch = searchQuery.trim().length === 0 ||
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const isSelectedOffice = selectedLocation?.id === loc.id && selectedLocation?.type === 'office';
-        const matchesTypeFilter = isSelectedOffice || activeFilters.length === 0 || activeFilters.includes(loc.type);
-        const matchesFavoritesFilter = !showFavoritesOnly || favoriteLocations.includes(loc.id);
-        return matchesSearch && matchesTypeFilter && matchesFavoritesFilter;
+        const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+        return matchesSearch && matchesTypeFilter;
     });
 
-    const locationsToDisplay = [
-        ...(selectedLocation && !filteredLocations.some(loc => loc.id === selectedLocation.id) ? [selectedLocation] : []),
-        ...filteredLocations
-    ];
+    const locationsToDisplay = showNearbySearch
+        ? [
+            ...(selectedLocation && selectedLocation.type === 'office' ? [selectedLocation] : []),
+            ...filteredLocations
+        ]
+        : [
+            ...(selectedLocation && !filteredLocations.some(loc => loc.id === selectedLocation.id) ? [selectedLocation] : []),
+            ...filteredLocations
+        ];
 
     return (
         <div className="w-full h-full rounded-md overflow-hidden">
@@ -75,6 +94,7 @@ export default function MapCard() {
                         />
                     </LayersControl.BaseLayer>
                 </LayersControl>
+                <MapZoomController />
                 <LocateButton />
                 <Navigation />
                 {locationsToDisplay.map(loc => (

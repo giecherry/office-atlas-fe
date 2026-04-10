@@ -15,8 +15,6 @@ export default function ResultList() {
     const {
         locations,
         latestFilter,
-        showFavoritesOnly,
-        favoriteLocations,
         searchQuery,
         selectedLocation,
         setSelectedLocation,
@@ -28,9 +26,7 @@ export default function ResultList() {
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTypeFilter =
             latestFilter === null ? true : loc.type === latestFilter;
-        const matchesFavoritesFilter =
-            !showFavoritesOnly || favoriteLocations.includes(loc.id);
-        return matchesSearch && matchesTypeFilter && matchesFavoritesFilter;
+        return matchesSearch && matchesTypeFilter;
     });
 
     return (
@@ -64,11 +60,10 @@ export default function ResultList() {
                             <button
                                 key={loc.id}
                                 onClick={() => setSelectedLocation(loc)}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${
-                                    isSelected
-                                        ? 'bg-blue-50 border border-blue-200'
-                                        : 'hover:bg-gray-50 border border-transparent'
-                                }`}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${isSelected
+                                    ? 'bg-blue-50 border border-blue-200'
+                                    : 'hover:bg-gray-50 border border-transparent'
+                                    }`}
                             >
                                 <div
                                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"

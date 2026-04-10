@@ -8,16 +8,12 @@ type DirectionsStep = { instruction: string; distanceMeters: number };
 interface LocationStore {
     locations: Location[];
     setLocations: (locations: Location[]) => void;
+
     activeFilters: locationType[];
     setActiveFilters: (filters: locationType[]) => void;
     toggleFilter: (filter: locationType | 'all') => void;
     clearFilters: () => void;
     latestFilter: locationType | null;
-
-    showFavoritesOnly: boolean;
-    toggleFavoritesFilter: () => void;
-    favoriteLocations: string[];
-    toggleFavorite: (locationId: string) => void;
 
     searchQuery: string;
     setSearchQuery: (query: string) => void;
@@ -43,8 +39,10 @@ interface LocationStore {
 
     showNearbySearch: boolean;
     setShowNearbySearch: (value: boolean) => void;
+
     nearbyLocations: Location[];
     setNearbyLocations: (locations: Location[]) => void;
+
     nearbySearchRadius: number;
     setNearbySearchRadius: (radius: number) => void;
 }
@@ -55,16 +53,15 @@ export const useLocationStore = create<LocationStore>()(
             locations: [],
             setLocations: (locations) => set({ locations }),
 
-            activeFilters: ['office'],
+            activeFilters: [],
             setActiveFilters: (filters) => set({ activeFilters: filters }),
-            latestFilter: 'office',
+            latestFilter: null,
 
             toggleFilter: (filter) => {
-                const { activeFilters, showFavoritesOnly, showNearbySearch } = get();
+                const { activeFilters, showNearbySearch } = get();
+
                 if (filter === 'all') {
-                    if (showFavoritesOnly || activeFilters.length > 0) {
-                        set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null });
-                    }
+                    set({ activeFilters: [], latestFilter: null });
                 } else {
                     if (showNearbySearch) {
                         const newFilters = activeFilters.includes(filter)
@@ -81,18 +78,7 @@ export const useLocationStore = create<LocationStore>()(
                 }
             },
 
-            clearFilters: () => set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null }),
-            showFavoritesOnly: false,
-            toggleFavoritesFilter: () => set({ showFavoritesOnly: !get().showFavoritesOnly }),
-
-            favoriteLocations: [],
-            toggleFavorite: (locationId) => {
-                const { favoriteLocations } = get();
-                const newFavorites = favoriteLocations.includes(locationId)
-                    ? favoriteLocations.filter(id => id !== locationId)
-                    : [...favoriteLocations, locationId];
-                set({ favoriteLocations: newFavorites });
-            },
+            clearFilters: () => set({ activeFilters: [], latestFilter: null }),
 
             searchQuery: "",
             setSearchQuery: (query) => set({ searchQuery: query }),
@@ -137,7 +123,7 @@ export const useLocationStore = create<LocationStore>()(
         }),
         {
             name: "location-store",
-            partialize: (state) => ({ favoriteLocations: state.favoriteLocations }),
+            partialize: (state) => ({ selectedLocation: state.selectedLocation }),
         }
     )
 );
