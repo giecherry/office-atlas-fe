@@ -2,6 +2,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Location, locationType } from "../types/location";
 
+type LatLng = { lat: number; lng: number };
+type DirectionsStep = { instruction: string; distanceMeters: number };
+
 interface LocationStore {
     locations: Location[];
     setLocations: (locations: Location[]) => void;
@@ -22,12 +25,21 @@ interface LocationStore {
     selectedLocation: Location | null;
     setSelectedLocation: (location: Location | null) => void;
 
-    userLocation: google.maps.LatLngLiteral | null;
-    setUserLocation: (location: google.maps.LatLngLiteral | null) => void;
+    userLocation: LatLng | null;
+    setUserLocation: (location: LatLng | null) => void;
 
     isNavigating: boolean;
     setIsNavigating: (value: boolean) => void;
 
+    directionsDuration: string | null;
+    setDirectionsDuration: (value: string | null) => void;
+    directionsSteps: DirectionsStep[];
+    setDirectionsSteps: (steps: DirectionsStep[]) => void;
+
+    showDirectionsPicker: boolean;
+    setShowDirectionsPicker: (value: boolean) => void;
+    directionsOrigin: Location | null;
+    setDirectionsOrigin: (loc: Location | null) => void;
 
     showNearbySearch: boolean;
     setShowNearbySearch: (value: boolean) => void;
@@ -36,7 +48,6 @@ interface LocationStore {
     nearbySearchRadius: number;
     setNearbySearchRadius: (radius: number) => void;
 }
-
 
 export const useLocationStore = create<LocationStore>()(
     persist(
@@ -50,20 +61,17 @@ export const useLocationStore = create<LocationStore>()(
 
             toggleFilter: (filter) => {
                 const { activeFilters, showFavoritesOnly, showNearbySearch } = get();
-
                 if (filter === 'all') {
                     if (showFavoritesOnly || activeFilters.length > 0) {
                         set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null });
                     }
                 } else {
                     if (showNearbySearch) {
-                        // Multi-select for NearbySearch
                         const newFilters = activeFilters.includes(filter)
                             ? activeFilters.filter(f => f !== filter)
                             : [...activeFilters, filter];
                         set({ activeFilters: newFilters, latestFilter: filter });
                     } else {
-                        // Single-select for ResultList
                         if (activeFilters.includes(filter) && activeFilters.length === 1) {
                             set({ activeFilters: [], latestFilter: null });
                         } else {
@@ -75,9 +83,7 @@ export const useLocationStore = create<LocationStore>()(
 
             clearFilters: () => set({ activeFilters: [], showFavoritesOnly: false, latestFilter: null }),
             showFavoritesOnly: false,
-            toggleFavoritesFilter: () => {
-                set({ showFavoritesOnly: !get().showFavoritesOnly });
-            },
+            toggleFavoritesFilter: () => set({ showFavoritesOnly: !get().showFavoritesOnly }),
 
             favoriteLocations: [],
             toggleFavorite: (locationId) => {
@@ -92,13 +98,29 @@ export const useLocationStore = create<LocationStore>()(
             setSearchQuery: (query) => set({ searchQuery: query }),
 
             selectedLocation: null,
-            setSelectedLocation: (location) => set({ selectedLocation: location, ...(location === null ? { isNavigating: false } : {}) }),
+            setSelectedLocation: (location) => set({
+                selectedLocation: location,
+                ...(location === null ? { isNavigating: false, showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsSteps: [] } : {}),
+            }),
 
             userLocation: null,
             setUserLocation: (location) => set({ userLocation: location }),
 
             isNavigating: false,
-            setIsNavigating: (value) => set({ isNavigating: value }),
+            setIsNavigating: (value) => set({
+                isNavigating: value,
+                ...(value === false ? { showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsSteps: [] } : {}),
+            }),
+
+            directionsDuration: null,
+            setDirectionsDuration: (value) => set({ directionsDuration: value }),
+            directionsSteps: [],
+            setDirectionsSteps: (steps) => set({ directionsSteps: steps }),
+
+            showDirectionsPicker: false,
+            setShowDirectionsPicker: (value) => set({ showDirectionsPicker: value }),
+            directionsOrigin: null,
+            setDirectionsOrigin: (loc) => set({ directionsOrigin: loc }),
 
             showNearbySearch: false,
             setShowNearbySearch: (value) => {
@@ -107,7 +129,8 @@ export const useLocationStore = create<LocationStore>()(
                 } else {
                     set({ showNearbySearch: false, activeFilters: ['office'] });
                 }
-            }, nearbyLocations: [],
+            },
+            nearbyLocations: [],
             setNearbyLocations: (locations) => set({ nearbyLocations: locations }),
             nearbySearchRadius: 1000,
             setNearbySearchRadius: (radius) => set({ nearbySearchRadius: radius }),
