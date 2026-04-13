@@ -91,7 +91,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden fixed bottom-0 left-0 right-0 top-0 z-40 bg-black/30"
+              className="md:hidden fixed bottom-0 left-0 right-0 top-0 z-[998] bg-black/30"
               onClick={() => {
                 setSelectedLocation(null);
                 setShowNearbySearch(false);
@@ -104,7 +104,7 @@ export default function Home() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-auto"
+              className="md:hidden fixed bottom-0 left-0 right-0 z-999 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-center rounded-t-3xl">
