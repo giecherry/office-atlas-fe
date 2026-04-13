@@ -1,68 +1,67 @@
 "use client";
 
-import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, LayersControl, useMap, Circle } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useLocationStore } from "../store/location";
-import { getLocations } from "../api/locations";
 import { LocateButton } from "./MapComponents/LocateButton";
 import { CustomMarker } from "./MapComponents/CustomMarker";
 import Navigation from "./Navigation";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
+import { getDistance } from "../utils/general";
 
 function MapZoomController() {
     const map = useMap();
-    const { selectedLocation } = useLocationStore();
+    const { selectedLocation, anchorLocation, showNearbySearch } = useLocationStore();
 
     useEffect(() => {
-        if (selectedLocation) {
-            const lat = Number(selectedLocation.coordinates.lat);
-            const lng = Number(selectedLocation.coordinates.lng);
+        const focusTarget = showNearbySearch ? anchorLocation : selectedLocation;
+        if (focusTarget) {
+            const lat = Number(focusTarget.coordinates.lat);
+            const lng = Number(focusTarget.coordinates.lng);
             map.flyTo([lat, lng], 15, { duration: 0.6 });
         }
-    }, [selectedLocation, map]);
+    }, [selectedLocation, anchorLocation, showNearbySearch, map]);
 
     return null;
 }
 
-
 export default function MapCard() {
     const {
-        locations, setLocations, activeFilters,
-        searchQuery, setSelectedLocation, selectedLocation,
-        showNearbySearch, nearbyLocations
+        locations, activeFilters, searchQuery,
+        setSelectedLocation, selectedLocation,
+        showNearbySearch, nearbyLocations, nearbySearchRadius,
+        anchorLocation,
     } = useLocationStore();
 
     const [hoveredLocationId, setHoveredLocationId] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const offices = await getLocations();
-                setLocations(offices);
-            } catch (error) {
-                console.error('Error fetching offices:', error);
-            }
-        };
-        fetchData();
-    }, [setLocations]);
 
     const filteredLocations = (showNearbySearch ? nearbyLocations : locations).filter(loc => {
         const matchesSearch = searchQuery.trim().length === 0 ||
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+
+        if (showNearbySearch && anchorLocation) {
+            const distance = getDistance(
+                { lat: anchorLocation.coordinates.lat, lng: anchorLocation.coordinates.lng },
+                { lat: loc.coordinates.lat, lng: loc.coordinates.lng }
+            );
+            return matchesSearch && matchesTypeFilter && distance <= nearbySearchRadius;
+        }
+
         return matchesSearch && matchesTypeFilter;
     });
 
     const locationsToDisplay = showNearbySearch
         ? [
-            ...(selectedLocation && selectedLocation.type === 'office' ? [selectedLocation] : []),
-            ...filteredLocations
+            ...(anchorLocation ? [anchorLocation] : []),
+            ...filteredLocations.filter(loc => loc.id !== anchorLocation?.id),
         ]
         : [
-            ...(selectedLocation && !filteredLocations.some(loc => loc.id === selectedLocation.id) ? [selectedLocation] : []),
-            ...filteredLocations
+            ...(selectedLocation && !filteredLocations.some(loc => loc.id === selectedLocation.id)
+                ? [selectedLocation] : []),
+            ...filteredLocations,
         ];
 
     return (
@@ -94,14 +93,26 @@ export default function MapCard() {
                         />
                     </LayersControl.BaseLayer>
                 </LayersControl>
+
                 <MapZoomController />
                 <LocateButton />
                 <Navigation />
+
+                {/* Radius circle when in nearby mode */}
+                {showNearbySearch && anchorLocation && (
+                    <Circle
+                        center={[anchorLocation.coordinates.lat, anchorLocation.coordinates.lng]}
+                        radius={nearbySearchRadius}
+                        pathOptions={{ color: '#16417F', fillColor: '#16417F', fillOpacity: 0.3, weight: 1.5, dashArray: '4 4' }}
+                    />
+                )}
+
                 {locationsToDisplay.map(loc => (
                     <CustomMarker
                         key={loc.id}
                         loc={loc}
                         isSelected={selectedLocation?.id === loc.id}
+                        isAnchor={showNearbySearch && anchorLocation?.id === loc.id}
                         isHovered={hoveredLocationId === loc.id}
                         onMouseEnter={() => setHoveredLocationId(loc.id)}
                         onMouseLeave={() => setHoveredLocationId(null)}

@@ -30,10 +30,10 @@ const PIN_OPTIONS: { type: locationType; icon: React.ReactNode; color: string }[
     },
 ];
 
-function renderCustomPin(loc: Location, isSelected: boolean = false, isHovered: boolean = false): string {
+function renderCustomPin(loc: Location, isSelected: boolean = false, isHovered: boolean = false, isAnchor: boolean = false): string {
     const pinOption = PIN_OPTIONS.find(opt => opt.type === loc.type);
-    const pinColor = isSelected ? '#4A89F3' : (pinOption?.color || '#87AFE8');
-    const showLabel = isSelected || isHovered;
+    const pinColor = isAnchor ? '#4A89F3' : (pinOption?.color || '#87AFE8');
+    const showLabel = isSelected || isHovered || isAnchor;
     const iconHTML = pinOption?.icon ? renderToStaticMarkup(pinOption.icon) : '';
 
     return `
@@ -53,6 +53,7 @@ interface CustomMarkerProps {
     loc: Location;
     isSelected: boolean;
     isHovered: boolean;
+    isAnchor: boolean;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
     onClick: () => void;
@@ -61,6 +62,7 @@ interface CustomMarkerProps {
 export function CustomMarker({
     loc,
     isSelected,
+    isAnchor,
     isHovered,
     onMouseEnter,
     onMouseLeave,
@@ -69,11 +71,11 @@ export function CustomMarker({
     const markerRef = useRef<L.Marker>(null);
 
     const icon = L.divIcon({
-        html: renderCustomPin(loc, isSelected, isHovered),
+        html: renderCustomPin(loc, isSelected, isHovered, isAnchor),
         iconSize: [40, 50],
         iconAnchor: [20, 50],
         popupAnchor: [0, -50],
-        className: isSelected ? 'animate-pulse' : '',
+        className: isSelected || isAnchor ? 'animate-pulse' : '',
     });
 
     return (

@@ -14,7 +14,6 @@ const typeConfig: Record<locationType, { icon: React.ReactNode; color: string; l
 export default function ResultList() {
     const {
         locations,
-        latestFilter,
         searchQuery,
         selectedLocation,
         setSelectedLocation,
@@ -24,9 +23,7 @@ export default function ResultList() {
         const matchesSearch =
             searchQuery.trim().length === 0 ||
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTypeFilter =
-            latestFilter === null ? true : loc.type === latestFilter;
-        return matchesSearch && matchesTypeFilter;
+        return matchesSearch;
     });
 
     return (

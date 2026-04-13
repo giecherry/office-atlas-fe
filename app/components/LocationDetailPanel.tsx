@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { Navigation, Building2, UtensilsCrossed, Train, Bus, X, MapPin, Search, LocateFixed, Loader2 } from 'lucide-react';
+import {
+    Navigation, Building2, UtensilsCrossed, Train, Bus,
+    X, MapPin, Search, LocateFixed, Loader2, Globe,
+    Clock, Accessibility, HandPlatter, ArrowLeft
+} from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
+import { getNearbyLocations } from '../api/locations';
 
 interface LocationDetailPanelProps {
     location: Location | null;
     onClose: () => void;
+    isMobileModal?: boolean;
 }
 
 const getLocationIcon = (type: Location['type']) => {
@@ -18,15 +24,17 @@ const getLocationIcon = (type: Location['type']) => {
     }
 };
 
-export default function LocationDetailPanel({ location, onClose }: LocationDetailPanelProps) {
+export default function LocationDetailPanel({ location, onClose, isMobileModal }: LocationDetailPanelProps) {
     const {
         userLocation, setUserLocation,
-        setShowNearbySearch, showNearbySearch,
+        showNearbySearch, enterNearbyMode,
+        setNearbyLocations, setNearbyLocationsLoading,
+        setAnchorLocation, anchorLocation,
         isNavigating, setIsNavigating,
         showDirectionsPicker, setShowDirectionsPicker,
         setDirectionsOrigin,
         directionsDuration, directionsSteps,
-        locations,
+        locations, setSelectedLocation,
     } = useLocationStore();
 
     const [isLocating, setIsLocating] = useState(false);
@@ -54,11 +62,48 @@ export default function LocationDetailPanel({ location, onClose }: LocationDetai
         }
     };
 
+    const handleNearbySearchClick = async () => {
+        if (!location) return;
+        setAnchorLocation(location);
+        enterNearbyMode();
+
+        setNearbyLocationsLoading(true);
+        try {
+            const data = await getNearbyLocations(
+                location.id,
+                Number(location.coordinates.lat),
+                Number(location.coordinates.lng),
+                1000
+            );
+            setNearbyLocations(data);
+        } finally {
+            setNearbyLocationsLoading(false);
+        }
+    };
+
     if (!location) return null;
+
+    const isViewingNearbyResult = showNearbySearch && anchorLocation && location.id !== anchorLocation.id;
 
     return (
         <div className="bg-white flex flex-col h-full px-4 py-2">
             <div className="p-2 border-b border-gray-200">
+                {isViewingNearbyResult && (
+                    <button
+                        onClick={() => {
+                            if (isMobileModal) {
+                                onClose();
+                            } else {
+                                setSelectedLocation(anchorLocation);
+                            }
+                        }}
+                        className="flex items-center gap-1.5 text-sm text-[#16417F] hover:underline mb-3"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        {isMobileModal ? 'Back to nearby results' : `Back to ${anchorLocation.name}`}
+                    </button>
+                )}
+
                 <div className="flex items-start justify-between mb-1">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                         <div className="p-3 rounded-xl text-white shrink-0">
@@ -70,31 +115,89 @@ export default function LocationDetailPanel({ location, onClose }: LocationDetai
                             </h2>
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0 ml-2"
-                        aria-label="Close panel"
-                    >
-                        <X className="w-4 h-4 text-gray-600" />
-                    </button>
+                    {!isViewingNearbyResult && (
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0 ml-2"
+                            aria-label="Close panel"
+                        >
+                            <X className="w-4 h-4 text-gray-600" />
+                        </button>
+                    )}
                 </div>
+
+                {isViewingNearbyResult && anchorLocation && (
+                    <p className="text-xs text-gray-400 ml-1 mb-1">
+                        Near {anchorLocation.name}
+                    </p>
+                )}
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Details</h3>
-                    <p className="text-gray-700">{location.description}</p>
-                </div>
+                {location.type !== 'office' && (
+                    <>
+                        {location.type === 'restaurant' && (
+                            <>
+                                {location.openingHours && (
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                            <Clock className="w-4 h-4" />
+                                            Opening Hours
+                                        </h3>
+                                        <div className="space-y-1 text-sm text-gray-600">
+                                            {location.openingHours.split(';').map((hours, idx) => (
+                                                <p key={idx} className="text-sm text-gray-600">{hours.trim()}</p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {location.cuisine && (
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                            <HandPlatter className="w-4 h-4" />
+                                            Cuisine
+                                        </h3>
+                                        <p className="text-sm capitalize text-gray-600">{location.cuisine}</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {location.wheelchairAccessibility == true && (
+                            <div>
+                                <Accessibility />
+                            </div>
+                        )}
+
+                        {location.website && (
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-2">Contact</h3>
+                                <a
+                                    href={location.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-sm text-[#16417F] hover:underline"
+                                >
+                                    <Globe className="w-4 h-4" />
+                                    Website
+                                </a>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
             <div className="p-6 border-t border-gray-200 space-y-3">
-                <button
-                    onClick={() => setShowNearbySearch(!showNearbySearch)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-medium transition-colors"
-                >
-                    <Search className="w-4 h-4" />
-                    <span>Explore Nearby</span>
-                </button>
+                {/* Explore Nearby button — only on offices, only when not already in nearby mode */}
+                {location.type === 'office' && !showNearbySearch && (
+                    <button
+                        onClick={handleNearbySearchClick}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-medium transition-colors"
+                    >
+                        <Search className="w-4 h-4" />
+                        <span>Explore Nearby</span>
+                    </button>
+                )}
 
                 <button
                     onClick={() => isNavigating ? setIsNavigating(false) : setShowDirectionsPicker(!showDirectionsPicker)}
