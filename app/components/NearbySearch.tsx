@@ -15,37 +15,32 @@ const typeConfig: Record<locationType, { icon: React.ReactNode; color: string; l
 
 export default function NearbySearch() {
     const {
-        selectedLocation,
+        anchorLocation,
         nearbyLocations,
         nearbySearchRadius,
         setNearbySearchRadius,
-        setShowNearbySearch,
+        exitNearbyMode,
         setSelectedLocation,
+        selectedLocation,
         activeFilters,
-        clearFilters,
         searchQuery,
         nearbyLocationsLoading,
     } = useLocationStore();
 
+    if (!anchorLocation) return null;
+
     const filteredNearby = (Array.isArray(nearbyLocations) ? nearbyLocations : []).filter(loc => {
         const matchesFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
-        const matchesSearch = searchQuery.trim().length === 0 || loc.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-        if (!selectedLocation || !matchesFilter || !matchesSearch) {
-            return false;
-        }
+        const matchesSearch = searchQuery.trim().length === 0 ||
+            loc.name.toLowerCase().includes(searchQuery.toLowerCase());
 
         const distance = getDistance(
-            { lat: selectedLocation.coordinates.lat, lng: selectedLocation.coordinates.lng },
+            { lat: anchorLocation.coordinates.lat, lng: anchorLocation.coordinates.lng },
             { lat: loc.coordinates.lat, lng: loc.coordinates.lng }
         );
 
-        return distance <= nearbySearchRadius;
+        return matchesFilter && matchesSearch && distance <= nearbySearchRadius;
     });
-
-    if (!selectedLocation) {
-        return null;
-    }
 
     return (
         <div className="bg-white flex flex-col h-full px-4 py-2">
@@ -56,15 +51,13 @@ export default function NearbySearch() {
                             Nearby
                         </h2>
                         <p className="text-xs text-gray-500">
-                            {selectedLocation.name}
+                            {anchorLocation.name}
                         </p>
                     </div>
                     <button
-                        onClick={() => {
-                            setShowNearbySearch(false);
-                            clearFilters();
-                        }} className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0 ml-2"
-                        aria-label="Close nearby search"
+                        onClick={exitNearbyMode}
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0 ml-2"
+                        aria-label="Exit nearby search"
                     >
                         <X className="w-4 h-4 text-gray-600" />
                     </button>
@@ -101,16 +94,15 @@ export default function NearbySearch() {
                 ) : (
                     filteredNearby.map(loc => {
                         const config = typeConfig[loc.type];
+                        const isSelected = selectedLocation?.id === loc.id;
                         return (
                             <button
                                 key={loc.id}
-                                onClick={() => {
-                                    setSelectedLocation(loc);
-                                    if (loc.type !== 'office') {
-                                        setShowNearbySearch(false);
-                                    }
-                                }}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-gray-50 border border-transparent"
+                                onClick={() => setSelectedLocation(loc)}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors border ${isSelected
+                                    ? 'bg-blue-50 border-blue-200'
+                                    : 'border-transparent hover:bg-gray-50'
+                                    }`}
                             >
                                 <div
                                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"

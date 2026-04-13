@@ -3,15 +3,22 @@
 import Search from "./components/Search";
 import LocationDetailPanel from "./components/LocationDetailPanel";
 import ResultList from "./components/ResultList";
+import NearbySearch from "./components/NearbySearch";
 import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
-import NearbySearch from "./components/NearbySearch";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
 import { getLocations } from "./api/locations";
 
 export default function Home() {
-  const { selectedLocation, setSelectedLocation, showNearbySearch, setShowNearbySearch, setLocations } = useLocationStore();
+  const {
+    selectedLocation,
+    setSelectedLocation,
+    showNearbySearch,
+    exitNearbyMode,
+    anchorLocation
+  } = useLocationStore();
+
   const MapCard = useMemo(() => dynamic(
     () => import('./components/MapCard'),
     {
@@ -24,13 +31,32 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const offices = await getLocations();
-        setLocations(offices);
+        useLocationStore.getState().setLocations(offices);
       } catch (error) {
         console.error('Error fetching offices:', error);
       }
     };
     fetchData();
-  }, [setLocations]);
+  }, []);
+
+  const detailPanelOpen = !!selectedLocation;
+  const mobileSheetOpen = showNearbySearch || !!selectedLocation;
+
+  const handleCloseDetail = () => {
+    if (showNearbySearch) {
+      setSelectedLocation(null);
+    } else {
+      setSelectedLocation(null);
+    }
+  };
+
+  const handleCloseMobileSheet = () => {
+    if (showNearbySearch) {
+      exitNearbyMode();
+    } else {
+      setSelectedLocation(null);
+    }
+  };
 
   return (
     <>
@@ -60,7 +86,7 @@ export default function Home() {
             </motion.div>
 
             <AnimatePresence>
-              {selectedLocation && (
+              {detailPanelOpen && (
                 <motion.div
                   key="desktop-panel"
                   initial={{ width: 0 }}
@@ -81,10 +107,7 @@ export default function Home() {
                     <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
                       <LocationDetailPanel
                         location={selectedLocation}
-                        onClose={() => {
-                          setSelectedLocation(null);
-                          setShowNearbySearch(false);
-                        }}
+                        onClose={handleCloseDetail}
                       />
                     </div>
                   </motion.div>
@@ -95,8 +118,9 @@ export default function Home() {
         </LayoutGroup>
       </main>
 
+      {/* Mobile bottom sheet */}
       <AnimatePresence>
-        {(selectedLocation || showNearbySearch) && (
+        {mobileSheetOpen && (
           <>
             <motion.div
               key="backdrop"
@@ -104,11 +128,8 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden fixed bottom-0 left-0 right-0 top-0 z-[998] bg-black/30"
-              onClick={() => {
-                setSelectedLocation(null);
-                setShowNearbySearch(false);
-              }}
+              className="md:hidden fixed inset-0 z-998 bg-black/30"
+              onClick={handleCloseMobileSheet}
             />
 
             <motion.div
@@ -117,23 +138,29 @@ export default function Home() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="md:hidden fixed bottom-0 left-0 right-0 z-999 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-auto"
+              className="md:hidden fixed bottom-0 left-0 right-0 z-9999 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-center rounded-t-3xl">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </div>
-              {showNearbySearch ? (
+
+              {showNearbySearch && (!selectedLocation || selectedLocation.id === anchorLocation?.id) && (
                 <NearbySearch />
-              ) : selectedLocation ? (
+              )}
+              {showNearbySearch && selectedLocation && selectedLocation.id !== anchorLocation?.id && (
                 <LocationDetailPanel
                   location={selectedLocation}
-                  onClose={() => {
-                    setSelectedLocation(null);
-                    setShowNearbySearch(false);
-                  }}
+                  onClose={handleCloseDetail}
+                  isMobileModal={true}
                 />
-              ) : null}
+              )}
+              {!showNearbySearch && selectedLocation && (
+                <LocationDetailPanel
+                  location={selectedLocation}
+                  onClose={handleCloseDetail}
+                />
+              )}
             </motion.div>
           </>
         )}

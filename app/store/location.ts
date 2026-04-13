@@ -7,21 +7,43 @@ type LatLng = { lat: number; lng: number };
 type DirectionsStep = { instruction: string; distanceMeters: number };
 
 interface LocationStore {
+    // --- Internal locations ---
     locations: Location[];
     setLocations: (locations: Location[]) => void;
 
-    activeFilters: locationType[];
-    setActiveFilters: (filters: locationType[]) => void;
-    toggleFilter: (filter: locationType | 'all') => void;
-    clearFilters: () => void;
-    latestFilter: locationType | null;
+    // --- Selection ---
+    // anchorLocation: the office the user is exploring from. Persists through nearby browsing.
+    anchorLocation: Location | null;
+    setAnchorLocation: (location: Location | null) => void;
 
-    searchQuery: string;
-    setSearchQuery: (query: string) => void;
-
+    // selectedLocation: what's currently shown in the detail panel (can be anchor or a nearby result).
     selectedLocation: Location | null;
     setSelectedLocation: (location: Location | null) => void;
 
+    // --- Nearby mode ---
+    showNearbySearch: boolean;
+    enterNearbyMode: () => void;
+    exitNearbyMode: () => void;
+
+    nearbyLocations: Location[];
+    setNearbyLocations: (locations: Location[]) => void;
+
+    nearbySearchRadius: number;
+    setNearbySearchRadius: (radius: number) => void;
+
+    nearbyLocationsLoading: boolean;
+    setNearbyLocationsLoading: (loading: boolean) => void;
+
+    // --- Nearby result filters ---
+    activeFilters: locationType[];
+    toggleFilter: (filter: locationType | 'all') => void;
+    clearFilters: () => void;
+
+    // --- Search ---
+    searchQuery: string;
+    setSearchQuery: (query: string) => void;
+
+    // --- User location & navigation ---
     userLocation: LatLng | null;
     setUserLocation: (location: LatLng | null) => void;
 
@@ -37,55 +59,18 @@ interface LocationStore {
     setShowDirectionsPicker: (value: boolean) => void;
     directionsOrigin: Location | null;
     setDirectionsOrigin: (loc: Location | null) => void;
-
-    showNearbySearch: boolean;
-    setShowNearbySearch: (value: boolean) => void;
-
-    nearbyLocations: Location[];
-    setNearbyLocations: (locations: Location[]) => void;
-
-    nearbySearchRadius: number;
-    setNearbySearchRadius: (radius: number) => void;
-
-    nearbyLocationsLoading: boolean;
-    setNearbyLocationsLoading: (loading: boolean) => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
     persist(
         (set, get) => ({
+            // --- Internal locations ---
             locations: [],
             setLocations: (locations) => set({ locations }),
 
-            activeFilters: [],
-            setActiveFilters: (filters) => set({ activeFilters: filters }),
-            latestFilter: null,
-
-            toggleFilter: (filter) => {
-                const { activeFilters, showNearbySearch } = get();
-
-                if (filter === 'all') {
-                    set({ activeFilters: [], latestFilter: null });
-                } else {
-                    if (showNearbySearch) {
-                        const newFilters = activeFilters.includes(filter)
-                            ? activeFilters.filter(f => f !== filter)
-                            : [...activeFilters, filter];
-                        set({ activeFilters: newFilters, latestFilter: filter });
-                    } else {
-                        if (activeFilters.includes(filter) && activeFilters.length === 1) {
-                            set({ activeFilters: [], latestFilter: null });
-                        } else {
-                            set({ activeFilters: [filter], latestFilter: filter });
-                        }
-                    }
-                }
-            },
-
-            clearFilters: () => set({ activeFilters: [], latestFilter: null }),
-
-            searchQuery: "",
-            setSearchQuery: (query) => set({ searchQuery: query }),
+            // --- Selection ---
+            anchorLocation: null,
+            setAnchorLocation: (location) => set({ anchorLocation: location }),
 
             selectedLocation: null,
             setSelectedLocation: (location) => set({
@@ -93,6 +78,65 @@ export const useLocationStore = create<LocationStore>()(
                 ...(location === null ? { isNavigating: false, showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsSteps: [] } : {}),
             }),
 
+            // --- Nearby mode ---
+            showNearbySearch: false,
+            enterNearbyMode: () => {
+                const { anchorLocation } = get();
+                if (!anchorLocation) return;
+                set({
+                    showNearbySearch: true,
+                    activeFilters: [],
+                    nearbyLocations: [],
+                });
+            },
+
+            exitNearbyMode: () => set({
+                showNearbySearch: false,
+                anchorLocation: null,
+                selectedLocation: null,
+                nearbyLocations: [],
+                activeFilters: [],
+            }),
+
+            nearbyLocations: [],
+            setNearbyLocations: (locations) => set({ nearbyLocations: locations }),
+
+            nearbySearchRadius: 300,
+            setNearbySearchRadius: (radius) => set({ nearbySearchRadius: radius }),
+
+            nearbyLocationsLoading: false,
+            setNearbyLocationsLoading: (loading) => set({ nearbyLocationsLoading: loading }),
+
+            // --- Filters ---
+            activeFilters: [],
+            toggleFilter: (filter) => {
+                const { activeFilters, showNearbySearch } = get();
+
+                if (filter === 'all') {
+                    set({ activeFilters: [] });
+                    return;
+                }
+
+                if (showNearbySearch) {
+                    // In nearby mode: multi-select
+                    const next = activeFilters.includes(filter)
+                        ? activeFilters.filter(f => f !== filter)
+                        : [...activeFilters, filter];
+                    set({ activeFilters: next });
+                } else {
+                    // In normal mode: single-select toggle
+                    const isSoleActive = activeFilters.includes(filter) && activeFilters.length === 1;
+                    set({ activeFilters: isSoleActive ? [] : [filter] });
+                }
+            },
+
+            clearFilters: () => set({ activeFilters: [] }),
+
+            // --- Search ---
+            searchQuery: "",
+            setSearchQuery: (query) => set({ searchQuery: query }),
+
+            // --- User location & navigation ---
             userLocation: null,
             setUserLocation: (location) => set({ userLocation: location }),
 
@@ -111,22 +155,6 @@ export const useLocationStore = create<LocationStore>()(
             setShowDirectionsPicker: (value) => set({ showDirectionsPicker: value }),
             directionsOrigin: null,
             setDirectionsOrigin: (loc) => set({ directionsOrigin: loc }),
-
-            showNearbySearch: false,
-            setShowNearbySearch: (value) => {
-                if (value) {
-                    set({ showNearbySearch: true, activeFilters: [] });
-                } else {
-                    set({ showNearbySearch: false, activeFilters: ['office'] });
-                }
-            },
-            nearbyLocations: [],
-            setNearbyLocations: (locations) => set({ nearbyLocations: locations }),
-            nearbySearchRadius: 300,
-            setNearbySearchRadius: (radius) => set({ nearbySearchRadius: radius }),
-
-            nearbyLocationsLoading: false,
-            setNearbyLocationsLoading: (loading) => set({ nearbyLocationsLoading: loading }),
         }),
         {
             name: "location-store",
