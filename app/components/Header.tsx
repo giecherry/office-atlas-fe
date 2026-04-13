@@ -1,5 +1,7 @@
 'use client';
 import Image from "next/image";
+import Link from "next/link";
+import { UserCircle } from "lucide-react";
 
 export default function Header() {
     return (
@@ -16,6 +18,13 @@ export default function Header() {
                         OfficeAtlas
                     </span>
                 </div>
+                <Link
+                    href="/login"
+                    className="text-[#041E42] hover:text-[#0a3270] transition-colors"
+                    aria-label="Log in"
+                >
+                    <UserCircle size={28} />
+                </Link>
             </div>
         </header>
     );

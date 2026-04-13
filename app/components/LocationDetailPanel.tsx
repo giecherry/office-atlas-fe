@@ -109,7 +109,7 @@ export default function LocationDetailPanel({ location, onClose }: LocationDetai
                         {directionsDuration && (
                             <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-[#16417F] font-medium border-b border-blue-100">
                                 <Navigation className="w-4 h-4 shrink-0" />
-                                <span>Ungefärlig gångtid: {directionsDuration}</span>
+                                <span>Walking time: {directionsDuration}</span>
                             </div>
                         )}
                         {directionsSteps.length > 0 && (
@@ -138,7 +138,7 @@ export default function LocationDetailPanel({ location, onClose }: LocationDetai
 
                 {showDirectionsPicker && !isNavigating && (
                     <div className="rounded-xl border border-gray-200 overflow-hidden">
-                        <p className="text-xs font-semibold text-gray-500 uppercase px-3 pt-3 pb-2">Välj startpunkt</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase px-3 pt-3 pb-2">Start position</p>
                         <button
                             onClick={handleUseMyLocation}
                             disabled={isLocating}
@@ -148,7 +148,7 @@ export default function LocationDetailPanel({ location, onClose }: LocationDetai
                                 ? <Loader2 className="w-4 h-4 text-[#16417F] animate-spin shrink-0" />
                                 : <LocateFixed className="w-4 h-4 text-[#16417F] shrink-0" />
                             }
-                            <span className="text-sm font-medium text-gray-900">Min nuvarande plats</span>
+                            <span className="text-sm font-medium text-gray-900">My location</span>
                         </button>
                         {availableOrigins.length > 0 && (
                             <div className="max-h-44 overflow-y-auto">
