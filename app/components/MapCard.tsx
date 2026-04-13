@@ -3,13 +3,13 @@
 import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useLocationStore } from "../store/location";
-import { getLocations } from "../api/locations";
 import { LocateButton } from "./MapComponents/LocateButton";
 import { CustomMarker } from "./MapComponents/CustomMarker";
 import Navigation from "./Navigation";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
+import { getDistance } from "../utils/general";
 
 function MapZoomController() {
     const map = useMap();
@@ -29,29 +29,28 @@ function MapZoomController() {
 
 export default function MapCard() {
     const {
-        locations, setLocations, activeFilters,
+        locations, activeFilters,
         searchQuery, setSelectedLocation, selectedLocation,
-        showNearbySearch, nearbyLocations
+        showNearbySearch, nearbyLocations, nearbySearchRadius
     } = useLocationStore();
 
     const [hoveredLocationId, setHoveredLocationId] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const offices = await getLocations();
-                setLocations(offices);
-            } catch (error) {
-                console.error('Error fetching offices:', error);
-            }
-        };
-        fetchData();
-    }, [setLocations]);
 
     const filteredLocations = (showNearbySearch ? nearbyLocations : locations).filter(loc => {
         const matchesSearch = searchQuery.trim().length === 0 ||
             loc.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+
+        if (showNearbySearch && selectedLocation) {
+            const distance = getDistance(
+                { lat: selectedLocation.coordinates.lat, lng: selectedLocation.coordinates.lng },
+                { lat: loc.coordinates.lat, lng: loc.coordinates.lng }
+            );
+            const matchesRadius = distance <= nearbySearchRadius;
+            return matchesSearch && matchesTypeFilter && matchesRadius;
+        }
+
         return matchesSearch && matchesTypeFilter;
     });
 

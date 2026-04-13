@@ -7,10 +7,11 @@ import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import NearbySearch from "./components/NearbySearch";
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { getLocations } from "./api/locations";
 
 export default function Home() {
-  const { selectedLocation, setSelectedLocation, showNearbySearch, setShowNearbySearch } = useLocationStore();
+  const { selectedLocation, setSelectedLocation, showNearbySearch, setShowNearbySearch, setLocations } = useLocationStore();
   const MapCard = useMemo(() => dynamic(
     () => import('./components/MapCard'),
     {
@@ -18,6 +19,18 @@ export default function Home() {
       ssr: false
     }
   ), []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const offices = await getLocations();
+        setLocations(offices);
+      } catch (error) {
+        console.error('Error fetching offices:', error);
+      }
+    };
+    fetchData();
+  }, [setLocations]);
 
   return (
     <>

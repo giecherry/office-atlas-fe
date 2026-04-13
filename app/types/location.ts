@@ -15,19 +15,13 @@ export interface Location {
     };
     description: string;
 
+    // Restaurant specific
+    cuisine?: string;
+    website?: string;
+    openingHours?: string;
+    wheelchairAccessibility?: boolean;
 
-    // Optional fields from Google Places API
-    rating?: number;
-    userRatingCount?: number;
-    googleMapsUri?: string;
-    websiteUri?: string;
-    phoneNumber?: string;
-    priceLevel?: string;
-    businessStatus?: string;
-    openingHours?: {
-        weekdayDescriptions?: string[];
-    };
-    distance_km?: number;
-    created_at?: string;
+    // Transport specific
+    network?: string;
+    shelter?: boolean;
 }
-

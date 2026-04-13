@@ -1,10 +1,10 @@
 'use client'
 
-import { Building2, UtensilsCrossed, Train, Bus, X } from 'lucide-react';
+import { Building2, UtensilsCrossed, Train, Bus, X, Loader2 } from 'lucide-react';
 import { useLocationStore } from '../store/location';
-import { useEffect, useState } from 'react';
 import type { locationType } from '../types/location';
 import Filters from './Filters';
+import { getDistance } from '../utils/general';
 
 const typeConfig: Record<locationType, { icon: React.ReactNode; color: string; label: string }> = {
     office: { icon: <Building2 className="w-4 h-4" />, color: '#16417F', label: 'Office' },
@@ -17,7 +17,6 @@ export default function NearbySearch() {
     const {
         selectedLocation,
         nearbyLocations,
-        setNearbyLocations,
         nearbySearchRadius,
         setNearbySearchRadius,
         setShowNearbySearch,
@@ -25,32 +24,24 @@ export default function NearbySearch() {
         activeFilters,
         clearFilters,
         searchQuery,
+        nearbyLocationsLoading,
     } = useLocationStore();
 
-    const [loading, setLoading] = useState(false);
+    const filteredNearby = (Array.isArray(nearbyLocations) ? nearbyLocations : []).filter(loc => {
+        const matchesFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
+        const matchesSearch = searchQuery.trim().length === 0 || loc.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-    useEffect(() => {
-        const fetchNearby = async () => {
-            if (!selectedLocation || selectedLocation.type !== 'office') return;
-            setLoading(true);
-            try {
-                /* const data = await getNearbyLocations(selectedLocation.id, nearbySearchRadius);
-                setNearbyLocations(data); */
-                console.log('Fetching nearby locations for', selectedLocation.name, 'with radius', nearbySearchRadius);
-            } catch (error) {
-                console.error('Error fetching nearby locations:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        if (!selectedLocation || !matchesFilter || !matchesSearch) {
+            return false;
+        }
 
-        fetchNearby();
-    }, [selectedLocation, nearbySearchRadius, setNearbyLocations]);
+        const distance = getDistance(
+            { lat: selectedLocation.coordinates.lat, lng: selectedLocation.coordinates.lng },
+            { lat: loc.coordinates.lat, lng: loc.coordinates.lng }
+        );
 
-    const filteredNearby = (Array.isArray(nearbyLocations) ? nearbyLocations : []).filter(loc =>
-        (activeFilters.length === 0 || activeFilters.includes(loc.type)) &&
-        (searchQuery.trim().length === 0 || loc.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+        return distance <= nearbySearchRadius;
+    });
 
     if (!selectedLocation) {
         return null;
@@ -86,7 +77,7 @@ export default function NearbySearch() {
                     <input
                         type="range"
                         min="100"
-                        max="3000"
+                        max="1000"
                         step="100"
                         value={nearbySearchRadius}
                         onChange={(e) => setNearbySearchRadius(Number(e.target.value))}
@@ -99,9 +90,9 @@ export default function NearbySearch() {
                 <Filters />
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                {loading ? (
-                    <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
-                        Loading nearby locations...
+                {nearbyLocationsLoading ? (
+                    <div className="flex items-center justify-center h-32">
+                        <Loader2 className="w-24 h-24 animate-spin text-[#16417F]" />
                     </div>
                 ) : filteredNearby.length === 0 ? (
                     <div className="flex items-center justify-center h-32 text-gray-400 text-sm">

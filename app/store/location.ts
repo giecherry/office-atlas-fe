@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Location, locationType } from "../types/location";
 
+
 type LatLng = { lat: number; lng: number };
 type DirectionsStep = { instruction: string; distanceMeters: number };
 
@@ -45,6 +46,9 @@ interface LocationStore {
 
     nearbySearchRadius: number;
     setNearbySearchRadius: (radius: number) => void;
+
+    nearbyLocationsLoading: boolean;
+    setNearbyLocationsLoading: (loading: boolean) => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -118,8 +122,11 @@ export const useLocationStore = create<LocationStore>()(
             },
             nearbyLocations: [],
             setNearbyLocations: (locations) => set({ nearbyLocations: locations }),
-            nearbySearchRadius: 1000,
+            nearbySearchRadius: 300,
             setNearbySearchRadius: (radius) => set({ nearbySearchRadius: radius }),
+
+            nearbyLocationsLoading: false,
+            setNearbyLocationsLoading: (loading) => set({ nearbyLocationsLoading: loading }),
         }),
         {
             name: "location-store",
