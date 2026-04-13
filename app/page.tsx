@@ -83,7 +83,7 @@ export default function Home() {
       </main>
 
       <AnimatePresence>
-        {selectedLocation && (
+        {(selectedLocation || showNearbySearch) && (
           <>
             <motion.div
               key="backdrop"
@@ -110,13 +110,17 @@ export default function Home() {
               <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-center rounded-t-3xl">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </div>
-              <LocationDetailPanel
-                location={selectedLocation}
-                onClose={() => {
-                  setSelectedLocation(null);
-                  setShowNearbySearch(false);
-                }}
-              />
+              {showNearbySearch ? (
+                <NearbySearch />
+              ) : selectedLocation ? (
+                <LocationDetailPanel
+                  location={selectedLocation}
+                  onClose={() => {
+                    setSelectedLocation(null);
+                    setShowNearbySearch(false);
+                  }}
+                />
+              ) : null}
             </motion.div>
           </>
         )}
