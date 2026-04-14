@@ -75,7 +75,7 @@ export function CustomMarker({
         iconSize: [40, 50],
         iconAnchor: [20, 50],
         popupAnchor: [0, -50],
-        className: isSelected || isAnchor ? 'animate-pulse' : '',
+        className: '',
     });
 
     return (

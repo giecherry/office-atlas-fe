@@ -25,18 +25,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@keyframes pulse-scale {
-
-  0%,
-  100% {
-    transform: scale(1.15);
-  }
-
-  50% {
-    transform: scale(1.25);
-  }
-}
-
 @keyframes label-pop {
   from {
     opacity: 0;
@@ -47,10 +35,6 @@ body {
     opacity: 1;
     transform: translateY(0) translateX(-50%);
   }
-}
-
-.marker-selected {
-  animation: pulse-scale 1.5s infinite;
 }
 
 .marker-label-active {
