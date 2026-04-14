@@ -9,12 +9,14 @@ import { useLocationStore } from '../store/location';
 import { getNearbyLocations } from '../api/locations';
 import { getAddressFromCoordinates } from '../utils/geocoding';
 import { getGoogleMapsUrl } from '../utils/general';
+import NearbySearch from './NearbySearch';
 
 interface LocationDetailPanelProps {
     location: Location | null;
     onClose: () => void;
     isMobileModal?: boolean;
 }
+
 
 const getLocationIcon = (type: Location['type']) => {
     const iconClass = "w-10 h-10 text-[#041E42]";
@@ -29,7 +31,7 @@ const getLocationIcon = (type: Location['type']) => {
 export default function LocationDetailPanel({ location, onClose, isMobileModal }: LocationDetailPanelProps) {
     const {
         userLocation, setUserLocation,
-        showNearbySearch, enterNearbyMode,
+        showNearbySearch, enterNearbyMode, exitNearbyMode,
         setNearbyLocations, setNearbyLocationsLoading,
         setAnchorLocation, anchorLocation,
         isNavigating, setIsNavigating,
@@ -43,14 +45,15 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
     const [address, setAddress] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!selectedLocation) return;
+        if (!location) return;
         setAddress(null);
-        getAddressFromCoordinates(selectedLocation.coordinates.lat, selectedLocation.coordinates.lng)
+        getAddressFromCoordinates(location.coordinates.lat, location.coordinates.lng)
             .then(setAddress);
-    }, [selectedLocation]);
-
+    }, [location]);
 
     const availableOrigins = locations.filter(loc => loc.id !== location?.id);
+    const isAnchor = showNearbySearch && anchorLocation?.id === location?.id;
+    const isViewingNearbyResult = showNearbySearch && anchorLocation && location?.id !== anchorLocation.id;
 
     const handleUseMyLocation = () => {
         if (userLocation) {
@@ -75,9 +78,12 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
 
     const handleNearbySearchClick = async () => {
         if (!location) return;
+        if (showNearbySearch) {
+            exitNearbyMode();
+            return;
+        }
         setAnchorLocation(location);
         enterNearbyMode();
-
         setNearbyLocationsLoading(true);
         try {
             const data = await getNearbyLocations(
@@ -93,8 +99,6 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
     };
 
     if (!location) return null;
-
-    const isViewingNearbyResult = showNearbySearch && anchorLocation && location.id !== anchorLocation.id;
 
     return (
         <div className="bg-white flex flex-col h-full px-4 py-2">
@@ -144,98 +148,105 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                 )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {address && (
-                    <div>
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            Address
-                        </h3>
-                        {location.type == 'office' ?
-                            <>
-                                <p className="text-sm text-gray-600 mb-2">{address}</p>
-                                <a
-                                    href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
-                                >
-                                    Open in Google Maps  <ExternalLink size={14} />
-                                </a>
-                            </>
-                            :
-                            <p className="text-sm text-gray-600">{address}</p>
-                        }
-                    </div>
-                )}
-                {location.type !== 'office' && (
-                    <>
-                        {location.openingHours && (
+            <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
+                <div className="py-4 px-2">
+                    {address && (
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <MapPin className="w-4 h-4" />
+                                Address
+                            </h3>
+                            {location.type == 'office' ?
+                                <>
+                                    <p className="text-sm text-gray-600 mb-2">{address}</p>
+                                    <a
+                                        href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                    >
+                                        Open in Google Maps  <ExternalLink size={14} />
+                                    </a>
+                                </>
+                                :
+                                <p className="text-sm text-gray-60 m-2">{address}</p>
+                            }
+                        </div>
+                    )}
+                    {location.type !== 'office' && (
+                        <>
+                            {location.openingHours && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                        <Clock className="w-4 h-4" />
+                                        Opening Hours
+                                    </h3>
+                                    <div className="space-y-1">
+                                        {location.openingHours.split(';').map((hours, idx) => (
+                                            <p key={idx} className="text-sm text-gray-600">{hours.trim()}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {location.cuisine && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                        <HandPlatter className="w-4 h-4" />
+                                        Cuisine
+                                    </h3>
+                                    <p className="text-sm capitalize text-gray-600">{location.cuisine}</p>
+                                </div>
+                            )}
+
                             <div>
                                 <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                    <Clock className="w-4 h-4" />
-                                    Opening Hours
+                                    <BookUser className="w-4 h-4" />
+                                    Contact
                                 </h3>
-                                <div className="space-y-1 text-sm text-gray-600">
-                                    {location.openingHours.split(';').map((hours, idx) => (
-                                        <p key={idx} className="text-sm text-gray-600">{hours.trim()}</p>
-                                    ))}
+                                <div className="flex flex-col gap-2">
+                                    {location.website && (
+                                        <a
+                                            href={location.website}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                        >
+                                            Website <ExternalLink size={14} />
+                                        </a>
+                                    )}
+                                    <a
+                                        href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng, location.name)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                    >
+                                        Open in Google Maps <ExternalLink size={14} />
+                                    </a>
                                 </div>
                             </div>
-                        )}
-                        {location.cuisine && (
-                            <div>
-                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                    <HandPlatter className="w-4 h-4" />
-                                    Cuisine
-                                </h3>
-                                <p className="text-sm capitalize text-gray-600">{location.cuisine}</p>
-                            </div>
-                        )}
 
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <BookUser className="w-4 h-4" />
-                            Contact
-                        </h3>
-                        <div className="flex flex-col gap-2">
-                            {location.website && (
-                                <a
-                                    href={location.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
-                                >
-                                    Website <ExternalLink size={14} />
-                                </a>)}
+                            {location.wheelchairAccessibility == true && (
+                                <div>
+                                    <Accessibility />
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
 
-                            <a
-                                href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng, location.name)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
-                            >
-                                Open in Google Maps <ExternalLink size={14} />
-                            </a>
-                        </div>
-
-                        {location.wheelchairAccessibility == true && (
-                            <div>
-                                <Accessibility />
-                            </div>
-                        )}
-                    </>
+                {isAnchor && showNearbySearch && (
+                    <NearbySearch />
                 )}
             </div>
 
-            <div className="p-6 border-t border-gray-200 space-y-3">
-                {/* Explore Nearby button — only on offices, only when not already in nearby mode */}
-                {location.type === 'office' && !showNearbySearch && (
+            <div className="border-t py-4 px-4 border-gray-200 space-y-3">
+                {location.type === 'office' && (
                     <button
                         onClick={handleNearbySearchClick}
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-medium transition-colors"
                     >
                         <Search className="w-4 h-4" />
-                        <span>Explore Nearby</span>
+                        <span>{showNearbySearch ? 'Close Nearby' : 'Explore Nearby'}</span>
                     </button>
                 )}
 

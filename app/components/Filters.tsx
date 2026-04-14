@@ -5,10 +5,10 @@ import { useLocationStore } from "../store/location";
 import { Bus, Utensils, TrainFront, MapPinned } from "lucide-react"
 
 const filterOptions: { type: locationType | 'all'; label: string; icon: React.ReactNode }[] = [
-    { type: 'all', label: 'All', icon: <MapPinned size={14} /> },
-    { type: 'restaurant', label: 'Restaurant', icon: <Utensils size={14} /> },
-    { type: 'train', label: 'Train', icon: <TrainFront size={14} /> },
-    { type: 'bus', label: 'Bus', icon: <Bus size={14} /> },
+    { type: 'all', label: 'All', icon: <MapPinned size={12} /> },
+    { type: 'restaurant', label: 'Restaurant', icon: <Utensils size={12} /> },
+    { type: 'train', label: 'Train', icon: <TrainFront size={12} /> },
+    { type: 'bus', label: 'Bus', icon: <Bus size={12} /> },
 ];
 
 export default function Filters() {
@@ -16,7 +16,7 @@ export default function Filters() {
     const showingAll = activeFilters.length === 0;
 
     return (
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-1.5">
             {filterOptions.map((filter) => {
                 const isActive = filter.type === 'all'
                     ? showingAll
@@ -28,7 +28,7 @@ export default function Filters() {
                         onClick={() => toggleFilter(filter.type)}
                         aria-label={filter.label}
                         className={`
-                            flex items-center justify-center gap-2 px-2 py-1 rounded-full transition-all
+                            flex items-center justify-center gap-1 px-2 py-1 rounded-full transition-all
                             ${isActive
                                 ? 'bg-[#16417F] text-white shadow-sm'
                                 : 'bg-gray-100 border border-gray-300 text-gray-600 hover:bg-gray-200'

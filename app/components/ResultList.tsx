@@ -17,6 +17,8 @@ export default function ResultList() {
         searchQuery,
         selectedLocation,
         setSelectedLocation,
+        setAnchorLocation,
+        exitNearbyMode,
     } = useLocationStore();
 
     const filteredLocations = locations.filter(loc => {
@@ -56,7 +58,11 @@ export default function ResultList() {
                         return (
                             <button
                                 key={loc.id}
-                                onClick={() => setSelectedLocation(loc)}
+                                onClick={() => {
+                                    setSelectedLocation(loc);
+                                    setAnchorLocation(loc);
+                                    exitNearbyMode();
+                                }}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${isSelected
                                     ? 'bg-blue-50 border border-blue-200'
                                     : 'hover:bg-gray-50 border border-transparent'
