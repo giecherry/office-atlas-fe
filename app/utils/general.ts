@@ -20,3 +20,11 @@ export const getDistance = (a: LatLng, b: LatLng): number => {
 
     return 2 * R * Math.atan2(Math.sqrt(aCalc), Math.sqrt(1 - aCalc));
 };
+
+export function getGoogleMapsUrl(lat: number, lng: number, name?: string): string {
+    const query = name
+        ? encodeURIComponent(`${name} @${lat},${lng}`)
+        : `${lat},${lng}`;
+
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+}

@@ -8,6 +8,7 @@ import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
 import { getNearbyLocations } from '../api/locations';
 import { getAddressFromCoordinates } from '../utils/geocoding';
+import { getGoogleMapsUrl } from '../utils/general';
 
 interface LocationDetailPanelProps {
     location: Location | null;
@@ -150,7 +151,21 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                             <MapPin className="w-4 h-4" />
                             Address
                         </h3>
-                        <p className="text-sm text-gray-600">{address}</p>
+                        {location.type == 'office' ?
+                            <>
+                                <p className="text-sm text-gray-600 mb-2">{address}</p>
+                                <a
+                                    href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                >
+                                    Open in Google Maps  <ExternalLink size={14} />
+                                </a>
+                            </>
+                            :
+                            <p className="text-sm text-gray-600">{address}</p>
+                        }
                     </div>
                 )}
                 {location.type !== 'office' && (
@@ -178,34 +193,30 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                             </div>
                         )}
 
-                        {location.website && (
-                            <>
-                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                    <BookUser className="w-4 h-4" />
-                                    Contact
-                                </h3>
-                                <div className="flex flex-col gap-2">
-                                    <a
-                                        href={location.website}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
-                                    >
-                                        Website <ExternalLink size={14} />
-                                    </a>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <BookUser className="w-4 h-4" />
+                            Contact
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                            {location.website && (
+                                <a
+                                    href={location.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                >
+                                    Website <ExternalLink size={14} />
+                                </a>)}
 
-                                    <a
-                                        href={`https://www.google.com/maps?q=${location.coordinates.lat},${location.coordinates.lng}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
-                                    >
-                                        Open in Google Maps <ExternalLink size={14} />
-                                    </a>
-                                </div>
-
-                            </>
-                        )}
+                            <a
+                                href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng, location.name)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                            >
+                                Open in Google Maps <ExternalLink size={14} />
+                            </a>
+                        </div>
 
                         {location.wheelchairAccessibility == true && (
                             <div>
