@@ -35,7 +35,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         isNavigating, setIsNavigating,
         showDirectionsPicker, setShowDirectionsPicker,
         setDirectionsOrigin,
-        directionsDuration, directionsSteps,
+        directionsDuration, directionsDistance, directionsSteps,
         locations, setSelectedLocation, selectedLocation,
     } = useLocationStore();
 
@@ -244,7 +244,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors"
                 >
                     <Navigation className="w-4 h-4" />
-                    <span>{isNavigating ? "Avsluta navigering" : "Get Directions"}</span>
+                    <span>{isNavigating ? "Quit navigation" : "Get Directions"}</span>
                 </button>
 
                 {isNavigating && (directionsDuration || directionsSteps.length > 0) && (
@@ -252,7 +252,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                         {directionsDuration && (
                             <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-[#16417F] font-medium border-b border-blue-100">
                                 <Navigation className="w-4 h-4 shrink-0" />
-                                <span>Walking time: {directionsDuration}</span>
+                                <span>Walking time: {directionsDuration}{directionsDistance && ` · ${directionsDistance}`}</span>
                             </div>
                         )}
                         {directionsSteps.length > 0 && (

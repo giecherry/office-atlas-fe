@@ -52,6 +52,8 @@ interface LocationStore {
 
     directionsDuration: string | null;
     setDirectionsDuration: (value: string | null) => void;
+    directionsDistance: string | null;
+    setDirectionsDistance: (value: string | null) => void;
     directionsSteps: DirectionsStep[];
     setDirectionsSteps: (steps: DirectionsStep[]) => void;
 
@@ -75,7 +77,7 @@ export const useLocationStore = create<LocationStore>()(
             selectedLocation: null,
             setSelectedLocation: (location) => set({
                 selectedLocation: location,
-                ...(location === null ? { isNavigating: false, showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsSteps: [] } : {}),
+                ...(location === null ? { isNavigating: false, showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsDistance: null, directionsSteps: [] } : {}),
             }),
 
             // --- Nearby mode ---
@@ -143,11 +145,13 @@ export const useLocationStore = create<LocationStore>()(
             isNavigating: false,
             setIsNavigating: (value) => set({
                 isNavigating: value,
-                ...(value === false ? { showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsSteps: [] } : {}),
+                ...(value === false ? { showDirectionsPicker: false, directionsOrigin: null, directionsDuration: null, directionsDistance: null, directionsSteps: [] } : {}),
             }),
 
             directionsDuration: null,
             setDirectionsDuration: (value) => set({ directionsDuration: value }),
+            directionsDistance: null,
+            setDirectionsDistance: (value) => set({ directionsDistance: value }),
             directionsSteps: [],
             setDirectionsSteps: (steps) => set({ directionsSteps: steps }),
 

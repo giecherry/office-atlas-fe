@@ -21,7 +21,7 @@ function formatInstruction(step: any): string {
 }
 
 export default function Navigation() {
-    const { userLocation, selectedLocation, isNavigating, directionsOrigin, setDirectionsDuration, setDirectionsSteps } = useLocationStore();
+    const { userLocation, selectedLocation, isNavigating, directionsOrigin, setDirectionsDuration, setDirectionsDistance, setDirectionsSteps } = useLocationStore();
     const [routePositions, setRoutePositions] = useState<[number, number][]>([]);
 
     useEffect(() => {
@@ -32,6 +32,7 @@ export default function Navigation() {
         if (!isNavigating || !origin || !selectedLocation) {
             setRoutePositions([]);
             setDirectionsDuration(null);
+            setDirectionsDistance(null);
             return;
         }
 
@@ -61,6 +62,14 @@ export default function Navigation() {
                     setDirectionsDuration(`${Math.round(route.duration / 60)} min`);
                 }
 
+                if (route.distance > 0) {
+                    setDirectionsDistance(
+                        route.distance < 1000
+                            ? `${Math.round(route.distance)} m`
+                            : `${(route.distance / 1000).toFixed(1)} km`
+                    );
+                }
+
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const steps = (route.legs?.[0]?.steps ?? []).map((s: any) => ({
                     instruction: formatInstruction(s),
@@ -73,7 +82,7 @@ export default function Navigation() {
         };
 
         fetchRoute();
-    }, [isNavigating, userLocation, directionsOrigin, selectedLocation, setDirectionsDuration, setDirectionsSteps]);
+    }, [isNavigating, userLocation, directionsOrigin, selectedLocation, setDirectionsDuration, setDirectionsDistance, setDirectionsSteps]);
 
     if (routePositions.length === 0) return null;
 
