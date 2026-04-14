@@ -38,19 +38,20 @@ export default function MapCard() {
     const [hoveredLocationId, setHoveredLocationId] = useState<string | null>(null);
 
     const filteredLocations = (showNearbySearch ? nearbyLocations : locations).filter(loc => {
-        const matchesSearch = searchQuery.trim().length === 0 ||
-            loc.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
 
         if (showNearbySearch && anchorLocation) {
+            const matchesTypeFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
             const distance = getDistance(
                 { lat: anchorLocation.coordinates.lat, lng: anchorLocation.coordinates.lng },
                 { lat: loc.coordinates.lat, lng: loc.coordinates.lng }
             );
-            return matchesSearch && matchesTypeFilter && distance <= nearbySearchRadius;
+            return matchesTypeFilter && distance <= nearbySearchRadius;
         }
 
-        return matchesSearch && matchesTypeFilter;
+        const matchesSearch = searchQuery.trim().length === 0 ||
+            loc.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesSearch;
     });
 
     const locationsToDisplay = showNearbySearch

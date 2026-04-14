@@ -17,7 +17,7 @@ export default function Search() {
                     onChange={(e) => {
                         setSearchQuery(e.target.value);
                     }}
-                    placeholder="Search location (e.g. reception, food, building)"
+                    placeholder="Search your office building"
                     className="flex-1 outline-none text-zinc-600 placeholder-zinc-400 bg-transparent text-sm"
                 />
             </div>

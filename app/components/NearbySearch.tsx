@@ -22,7 +22,6 @@ export default function NearbySearch() {
         setSelectedLocation,
         selectedLocation,
         activeFilters,
-        searchQuery,
         nearbyLocationsLoading,
     } = useLocationStore();
 
@@ -30,15 +29,13 @@ export default function NearbySearch() {
 
     const filteredNearby = (Array.isArray(nearbyLocations) ? nearbyLocations : []).filter(loc => {
         const matchesFilter = activeFilters.length === 0 || activeFilters.includes(loc.type);
-        const matchesSearch = searchQuery.trim().length === 0 ||
-            loc.name.toLowerCase().includes(searchQuery.toLowerCase());
 
         const distance = getDistance(
             { lat: anchorLocation.coordinates.lat, lng: anchorLocation.coordinates.lng },
             { lat: loc.coordinates.lat, lng: loc.coordinates.lng }
         );
 
-        return matchesFilter && matchesSearch && distance <= nearbySearchRadius;
+        return matchesFilter && distance <= nearbySearchRadius;
     });
 
     return (
