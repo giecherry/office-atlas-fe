@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Navigation, Building2, UtensilsCrossed, Train, Bus,
-    X, MapPin, Search, LocateFixed, Loader2, Globe,
-    Clock, Accessibility, HandPlatter, ArrowLeft
+    X, MapPin, Search, LocateFixed, Loader2,
+    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink
 } from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
 import { getNearbyLocations } from '../api/locations';
+import { getAddressFromCoordinates } from '../utils/geocoding';
 
 interface LocationDetailPanelProps {
     location: Location | null;
@@ -34,10 +35,19 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         showDirectionsPicker, setShowDirectionsPicker,
         setDirectionsOrigin,
         directionsDuration, directionsSteps,
-        locations, setSelectedLocation,
+        locations, setSelectedLocation, selectedLocation,
     } = useLocationStore();
 
     const [isLocating, setIsLocating] = useState(false);
+    const [address, setAddress] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!selectedLocation) return;
+        setAddress(null);
+        getAddressFromCoordinates(selectedLocation.coordinates.lat, selectedLocation.coordinates.lng)
+            .then(setAddress);
+    }, [selectedLocation]);
+
 
     const availableOrigins = locations.filter(loc => loc.id !== location?.id);
 
@@ -134,53 +144,72 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {address && (
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            Address
+                        </h3>
+                        <p className="text-sm text-gray-600">{address}</p>
+                    </div>
+                )}
                 {location.type !== 'office' && (
                     <>
-                        {location.type === 'restaurant' && (
+                        {location.openingHours && (
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <Clock className="w-4 h-4" />
+                                    Opening Hours
+                                </h3>
+                                <div className="space-y-1 text-sm text-gray-600">
+                                    {location.openingHours.split(';').map((hours, idx) => (
+                                        <p key={idx} className="text-sm text-gray-600">{hours.trim()}</p>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {location.cuisine && (
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <HandPlatter className="w-4 h-4" />
+                                    Cuisine
+                                </h3>
+                                <p className="text-sm capitalize text-gray-600">{location.cuisine}</p>
+                            </div>
+                        )}
+
+                        {location.website && (
                             <>
-                                {location.openingHours && (
-                                    <div>
-                                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                            <Clock className="w-4 h-4" />
-                                            Opening Hours
-                                        </h3>
-                                        <div className="space-y-1 text-sm text-gray-600">
-                                            {location.openingHours.split(';').map((hours, idx) => (
-                                                <p key={idx} className="text-sm text-gray-600">{hours.trim()}</p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {location.cuisine && (
-                                    <div>
-                                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                            <HandPlatter className="w-4 h-4" />
-                                            Cuisine
-                                        </h3>
-                                        <p className="text-sm capitalize text-gray-600">{location.cuisine}</p>
-                                    </div>
-                                )}
+                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <BookUser className="w-4 h-4" />
+                                    Contact
+                                </h3>
+                                <div className="flex flex-col gap-2">
+                                    <a
+                                        href={location.website}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                    >
+                                        Website <ExternalLink size={14} />
+                                    </a>
+
+                                    <a
+                                        href={`https://www.google.com/maps?q=${location.coordinates.lat},${location.coordinates.lng}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                    >
+                                        Open in Google Maps <ExternalLink size={14} />
+                                    </a>
+                                </div>
+
                             </>
                         )}
 
                         {location.wheelchairAccessibility == true && (
                             <div>
                                 <Accessibility />
-                            </div>
-                        )}
-
-                        {location.website && (
-                            <div>
-                                <h3 className="text-sm font-semibold text-gray-700 mb-2">Contact</h3>
-                                <a
-                                    href={location.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-sm text-[#16417F] hover:underline"
-                                >
-                                    <Globe className="w-4 h-4" />
-                                    Website
-                                </a>
                             </div>
                         )}
                     </>
@@ -270,6 +299,6 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
