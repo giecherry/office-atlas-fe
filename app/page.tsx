@@ -83,18 +83,18 @@ export default function Home() {
                 <motion.div
                   key="desktop-panel"
                   initial={{ width: 0 }}
-                  animate={{ width: 300 }}
+                  animate={{ width: 320 }}
                   exit={{ width: 0 }}
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
                   style={{ flexShrink: 0, overflow: 'hidden' }}
                   className="hidden md:flex flex-col"
                 >
                   <motion.div
-                    initial={{ x: 300 }}
+                    initial={{ x: 320 }}
                     animate={{ x: 0 }}
-                    exit={{ x: 300 }}
+                    exit={{ x: 320 }}
                     transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    style={{ width: 300 }}
+                    style={{ width: 320 }}
                     className="flex flex-col h-full"
                   >
                     <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
