@@ -3,7 +3,6 @@
 import Search from "./components/Search";
 import LocationDetailPanel from "./components/LocationDetailPanel";
 import ResultList from "./components/ResultList";
-import NearbySearch from "./components/NearbySearch";
 import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import dynamic from "next/dynamic";
@@ -16,15 +15,12 @@ export default function Home() {
     setSelectedLocation,
     showNearbySearch,
     exitNearbyMode,
-    anchorLocation
+    anchorLocation,
   } = useLocationStore();
 
   const MapCard = useMemo(() => dynamic(
     () => import('./components/MapCard'),
-    {
-      loading: () => <p>Map loading...</p>,
-      ssr: false
-    }
+    { loading: () => <p>Map loading...</p>, ssr: false }
   ), []);
 
   useEffect(() => {
@@ -39,23 +35,24 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const detailPanelOpen = !!selectedLocation;
-  const mobileSheetOpen = showNearbySearch || !!selectedLocation;
+  const detailLocation = selectedLocation ?? (showNearbySearch ? anchorLocation : null);
+  const detailPanelOpen = !!detailLocation;
 
   const handleCloseDetail = () => {
-    if (showNearbySearch) {
-      setSelectedLocation(null);
+    if (showNearbySearch && selectedLocation?.id !== anchorLocation?.id) {
+      setSelectedLocation(anchorLocation);
+    } else if (showNearbySearch) {
+      exitNearbyMode();
     } else {
       setSelectedLocation(null);
     }
   };
 
+  const mobileSheetOpen = !!selectedLocation || showNearbySearch;
+
   const handleCloseMobileSheet = () => {
-    if (showNearbySearch) {
-      exitNearbyMode();
-    } else {
-      setSelectedLocation(null);
-    }
+    exitNearbyMode();
+    setSelectedLocation(null);
   };
 
   return (
@@ -67,13 +64,9 @@ export default function Home() {
 
         <LayoutGroup>
           <div className="flex flex-col md:flex-row flex-1 gap-4 p-2 md:p-4 lg:p-6 md:overflow-hidden">
-            <div className="hidden md:flex flex-col shrink-0" style={{ width: 350 }}>
+            <div className="hidden md:flex flex-col shrink-0" style={{ width: 300 }}>
               <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
-                {showNearbySearch ? (
-                  <NearbySearch />
-                ) : (
-                  <ResultList />
-                )}
+                <ResultList />
               </div>
             </div>
 
@@ -90,23 +83,23 @@ export default function Home() {
                 <motion.div
                   key="desktop-panel"
                   initial={{ width: 0 }}
-                  animate={{ width: 320 }}
+                  animate={{ width: 300 }}
                   exit={{ width: 0 }}
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
                   style={{ flexShrink: 0, overflow: 'hidden' }}
                   className="hidden md:flex flex-col"
                 >
                   <motion.div
-                    initial={{ x: 320 }}
+                    initial={{ x: 300 }}
                     animate={{ x: 0 }}
-                    exit={{ x: 320 }}
+                    exit={{ x: 300 }}
                     transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    style={{ width: 320 }}
+                    style={{ width: 300 }}
                     className="flex flex-col h-full"
                   >
                     <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
                       <LocationDetailPanel
-                        location={selectedLocation}
+                        location={detailLocation}
                         onClose={handleCloseDetail}
                       />
                     </div>
@@ -114,6 +107,7 @@ export default function Home() {
                 </motion.div>
               )}
             </AnimatePresence>
+
           </div>
         </LayoutGroup>
       </main>
@@ -144,23 +138,11 @@ export default function Home() {
               <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-center rounded-t-3xl">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </div>
-
-              {showNearbySearch && (!selectedLocation || selectedLocation.id === anchorLocation?.id) && (
-                <NearbySearch />
-              )}
-              {showNearbySearch && selectedLocation && selectedLocation.id !== anchorLocation?.id && (
-                <LocationDetailPanel
-                  location={selectedLocation}
-                  onClose={handleCloseDetail}
-                  isMobileModal={true}
-                />
-              )}
-              {!showNearbySearch && selectedLocation && (
-                <LocationDetailPanel
-                  location={selectedLocation}
-                  onClose={handleCloseDetail}
-                />
-              )}
+              <LocationDetailPanel
+                location={detailLocation}
+                onClose={handleCloseDetail}
+                isMobileModal={true}
+              />
             </motion.div>
           </>
         )}

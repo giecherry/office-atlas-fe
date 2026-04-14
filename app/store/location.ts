@@ -92,8 +92,6 @@ export const useLocationStore = create<LocationStore>()(
 
             exitNearbyMode: () => set({
                 showNearbySearch: false,
-                anchorLocation: null,
-                selectedLocation: null,
                 nearbyLocations: [],
                 activeFilters: [],
             }),
