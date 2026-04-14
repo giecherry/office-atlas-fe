@@ -2,6 +2,7 @@
 
 import { MapContainer, TileLayer, LayersControl, useMap, Circle } from "react-leaflet";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { useLocationStore } from "../store/location";
 import { LocateButton } from "./MapComponents/LocateButton";
 import { CustomMarker } from "./MapComponents/CustomMarker";
@@ -66,61 +67,77 @@ export default function MapCard() {
         ];
 
     return (
-        <div className="w-full h-full rounded-md overflow-hidden">
-            <MapContainer
-                center={[59.180, 17.630]}
-                zoom={12.5}
-                scrollWheelZoom={true}
-                touchZoom={true}
-                style={{ height: "100%", width: "100%" }}
+        <div className="w-full h-full rounded-md overflow-hidden relative">
+            <motion.img
+                src="./map-skeleton.png"
+                alt="Loading map..."
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ pointerEvents: 'none' }}
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 1, delay: 0.3, ease: 'easeInOut' }}
+            />
+            <motion.div
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.3, ease: 'easeInOut' }}
             >
-                <LayersControl>
-                    <LayersControl.BaseLayer name="Street Map">
-                        <TileLayer
-                            attribution='&copy; OpenStreetMap contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                    </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer checked name="Satellite">
-                        <TileLayer
-                            attribution='&copy; Esri'
-                            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                        />
-                    </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer name="Terrain">
-                        <TileLayer
-                            attribution='&copy; OpenTopoMap'
-                            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                        />
-                    </LayersControl.BaseLayer>
-                </LayersControl>
+                <MapContainer
+                    center={[59.180, 17.630]}
+                    zoom={12.5}
+                    scrollWheelZoom={true}
+                    touchZoom={true}
+                    style={{ height: "100%", width: "100%" }}
+                >
+                    <LayersControl>
+                        <LayersControl.BaseLayer name="Street Map">
+                            <TileLayer
+                                attribution='&copy; OpenStreetMap contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                        </LayersControl.BaseLayer>
+                        <LayersControl.BaseLayer checked name="Satellite">
+                            <TileLayer
+                                attribution='&copy; Esri'
+                                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                            />
+                        </LayersControl.BaseLayer>
+                        <LayersControl.BaseLayer name="Terrain">
+                            <TileLayer
+                                attribution='&copy; OpenTopoMap'
+                                url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                            />
+                        </LayersControl.BaseLayer>
+                    </LayersControl>
 
-                <MapZoomController />
-                <LocateButton />
-                <Navigation />
+                    <MapZoomController />
+                    <LocateButton />
+                    <Navigation />
 
-                {/* Radius circle when in nearby mode */}
-                {showNearbySearch && anchorLocation && (
-                    <Circle
-                        center={[anchorLocation.coordinates.lat, anchorLocation.coordinates.lng]}
-                        radius={nearbySearchRadius}
-                        pathOptions={{ color: '#16417F', fillColor: '#16417F', fillOpacity: 0.3, weight: 1.5, dashArray: '4 4' }}
-                    />
-                )}
+                    {/* Radius circle when in nearby mode */}
+                    {showNearbySearch && anchorLocation && (
+                        <Circle
+                            center={[anchorLocation.coordinates.lat, anchorLocation.coordinates.lng]}
+                            radius={nearbySearchRadius}
+                            pathOptions={{ color: '#16417F', fillColor: '#16417F', fillOpacity: 0.3, weight: 1.5, dashArray: '4 4' }}
+                        />
+                    )}
 
-                {locationsToDisplay.map(loc => (
-                    <CustomMarker
-                        key={loc.id}
-                        loc={loc}
-                        isSelected={selectedLocation?.id === loc.id}
-                        isAnchor={showNearbySearch && anchorLocation?.id === loc.id}
-                        isHovered={hoveredLocationId === loc.id}
-                        onMouseEnter={() => setHoveredLocationId(loc.id)}
-                        onMouseLeave={() => setHoveredLocationId(null)}
-                        onClick={() => setSelectedLocation(loc)}
-                    />
-                ))}
-            </MapContainer>
+                    {locationsToDisplay.map(loc => (
+                        <CustomMarker
+                            key={loc.id}
+                            loc={loc}
+                            isSelected={selectedLocation?.id === loc.id}
+                            isAnchor={showNearbySearch && anchorLocation?.id === loc.id}
+                            isHovered={hoveredLocationId === loc.id}
+                            onMouseEnter={() => setHoveredLocationId(loc.id)}
+                            onMouseLeave={() => setHoveredLocationId(null)}
+                            onClick={() => setSelectedLocation(loc)}
+                        />
+                    ))}
+                </MapContainer>
+            </motion.div>
         </div>
     );
 }

@@ -20,7 +20,7 @@ export default function Home() {
 
   const MapCard = useMemo(() => dynamic(
     () => import('./components/MapCard'),
-    { loading: () => <p>Map loading...</p>, ssr: false }
+    { ssr: false }
   ), []);
 
   useEffect(() => {
