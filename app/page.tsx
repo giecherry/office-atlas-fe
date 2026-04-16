@@ -68,42 +68,43 @@ export default function Home() {
             </div>
 
             <motion.div
-              className="flex-1 p-6 bg-white rounded-xl shadow-md overflow-hidden"
+              className="flex-1 bg-white rounded-xl shadow-md overflow-hidden"
               layout
               transition={{ duration: 0.4, ease: 'easeInOut' }}
             >
-              <MapCard />
-            </motion.div>
+              <div className="flex h-full">
+                <div className="flex-1 p-6 overflow-hidden">
+                  <MapCard />
+                </div>
 
-            <AnimatePresence>
-              {detailPanelOpen && (
-                <motion.div
-                  key="desktop-panel"
-                  initial={{ width: 0 }}
-                  animate={{ width: 320 }}
-                  exit={{ width: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  style={{ flexShrink: 0, overflow: 'hidden' }}
-                  className="hidden md:flex flex-col"
-                >
-                  <motion.div
-                    initial={{ x: 320 }}
-                    animate={{ x: 0 }}
-                    exit={{ x: 320 }}
-                    transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    style={{ width: 320 }}
-                    className="flex flex-col h-full"
-                  >
-                    <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
-                      <LocationDetailPanel
-                        location={detailLocation}
-                        onClose={handleCloseDetail}
-                      />
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                <AnimatePresence>
+                  {detailPanelOpen && (
+                    <motion.div
+                      key="desktop-panel"
+                      initial={{ width: 0 }}
+                      animate={{ width: 320 }}
+                      exit={{ width: 0 }}
+                      transition={{ duration: 0.4, ease: 'easeInOut' }}
+                      style={{ flexShrink: 0, overflow: 'hidden' }}
+                    >
+                      <motion.div
+                        initial={{ x: 320 }}
+                        animate={{ x: 0 }}
+                        exit={{ x: 320 }}
+                        transition={{ duration: 0.4, ease: 'easeInOut' }}
+                        style={{ width: 320 }}
+                        className="flex flex-col h-full"
+                      >
+                        <LocationDetailPanel
+                          location={detailLocation}
+                          onClose={handleCloseDetail}
+                        />
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
 
           </div>
         </LayoutGroup>

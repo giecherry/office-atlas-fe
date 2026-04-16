@@ -38,7 +38,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         showDirectionsPicker, setShowDirectionsPicker,
         setDirectionsOrigin,
         directionsDuration, directionsDistance, directionsSteps,
-        locations, setSelectedLocation, selectedLocation,
+        locations, setSelectedLocation,
     } = useLocationStore();
 
     const [isLocating, setIsLocating] = useState(false);
@@ -102,7 +102,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
 
     return (
         <div className="bg-white flex flex-col h-full px-4 py-2">
-            <div className="p-2 border-b border-gray-200">
+            <div className="pt-2 border-b border-gray-200">
                 {isViewingNearbyResult && (
                     <button
                         onClick={() => {
@@ -112,7 +112,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                                 setSelectedLocation(anchorLocation);
                             }
                         }}
-                        className="flex items-center gap-1.5 text-sm text-[#16417F] hover:underline mb-3"
+                        className="flex items-center gap-1.5 text-sm text-[#16417F] hover:underline mb-3 mt-2"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         {isMobileModal ? 'Back to nearby results' : `Back to ${anchorLocation.name}`}
@@ -133,7 +133,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                     {!isViewingNearbyResult && (
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0 ml-2"
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0"
                             aria-label="Close panel"
                         >
                             <X className="w-4 h-4 text-gray-600" />
