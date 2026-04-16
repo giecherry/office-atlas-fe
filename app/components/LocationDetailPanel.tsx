@@ -304,6 +304,18 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                             }
                             <span className="text-sm font-medium text-gray-900">My location</span>
                         </button>
+
+                        {isViewingNearbyResult && anchorLocation &&
+                            <button
+                                onClick={() => { setDirectionsOrigin(anchorLocation); setIsNavigating(true); setShowDirectionsPicker(false); }}
+                                className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-blue-50 text-left transition-colors border-b border-gray-100 disabled:opacity-50"
+                            >
+                                <MapPin className="w-4 h-4shrink-0 text-[#16417F]" />
+                                <span className="text-sm font-medium text-gray-900">{anchorLocation?.name}</span>
+                            </button>
+
+                        }
+
                         {availableOrigins.length > 0 && (
                             <div className="max-h-44 overflow-y-auto scrollbar scrollbar-thumb-[#16417F] scrollbar-track-[#8fb0de00]">
                                 {availableOrigins.map(loc => (

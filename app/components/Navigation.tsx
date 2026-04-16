@@ -10,14 +10,14 @@ function formatInstruction(step: any): string {
     const modifier = step.maneuver?.modifier ?? '';
     const name = step.name ?? '';
 
-    if (type === 'depart') return `Starta${name ? ` på ${name}` : ''}`;
-    if (type === 'arrive') return 'Framme vid destinationen';
+    if (type === 'depart') return `Start${name ? ` on ${name}` : ''}`;
+    if (type === 'arrive') return 'Arrived at destination';
     if (type === 'turn') {
-        const dir = modifier === 'left' ? 'vänster' : modifier === 'right' ? 'höger' : 'rakt fram';
-        return `Sväng ${dir}${name ? ` på ${name}` : ''}`;
+        const dir = modifier === 'left' ? 'left' : modifier === 'right' ? 'right' : 'straight';
+        return `Turn ${dir}${name ? ` on ${name}` : ''}`;
     }
-    if (type === 'roundabout' || type === 'rotary') return `Ta rondellen${name ? ` mot ${name}` : ''}`;
-    return name ? `Fortsätt på ${name}` : 'Fortsätt rakt fram';
+    if (type === 'roundabout' || type === 'rotary') return `Take the roundabout${name ? ` toward ${name}` : ''}`;
+    return name ? `Continue on ${name}` : 'Continue straight';
 }
 
 export default function Navigation() {
