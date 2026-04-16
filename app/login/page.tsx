@@ -70,7 +70,6 @@ export default function LoginPage() {
                             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42]"
                         />
                     </div>
-
                     <div className="flex flex-col gap-1">
                         <label className="text-sm text-gray-600" htmlFor="password">Password</label>
                         <input
@@ -82,11 +81,6 @@ export default function LoginPage() {
                             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42]"
                         />
                     </div>
-                    {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-                            {error}
-                        </div>
-                    )}
                     <button
                         type="submit"
                         disabled={loading}
