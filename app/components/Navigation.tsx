@@ -44,7 +44,7 @@ export default function Navigation() {
         const fetchRoute = async () => {
             try {
                 // OSRM: koordinater i lng,lat-format
-                const url = `https://router.project-osrm.org/route/v1/foot/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?steps=true&geometries=geojson&overview=full`;
+                const url = `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?steps=true&geometries=geojson&overview=full`;
                 const response = await fetch(url);
 
                 if (!response.ok) { console.error('OSRM error:', response.status); return; }
