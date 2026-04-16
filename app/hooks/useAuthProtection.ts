@@ -2,16 +2,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated } from '../utils/auth';
+import { useAuthStore } from '../store/auth';
 
 export function useAuthProtection() {
     const router = useRouter();
+    const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
         if (!isAuthenticated()) {
             router.push('/login');
         }
-    }, [router]);
+    }, [router, isAuthenticated]);
 
     return isAuthenticated();
 }

@@ -1,13 +1,14 @@
 'use client';
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { clearAuth, isAuthenticated } from "../utils/auth";
-import { useEffect, useState } from "react";
+import { useAuthStore } from "../store/auth";
 
 export default function Header() {
     const router = useRouter();
+    const { isAuthenticated, clearAuth } = useAuthStore();
     const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
@@ -15,7 +16,7 @@ export default function Header() {
         sync();
         window.addEventListener('auth-change', sync);
         return () => window.removeEventListener('auth-change', sync);
-    }, []);
+    }, [isAuthenticated]);
 
 
     const handleLogout = () => {

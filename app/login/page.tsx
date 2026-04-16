@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { login, register } from '../api/auth';
-import { setAuth } from '../utils/auth';
+import { useAuthStore } from '../store/auth';
 
 export default function LoginPage() {
     const [isSignUp, setIsSignUp] = useState(false);
@@ -13,6 +13,7 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { setAuth } = useAuthStore();
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();

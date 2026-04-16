@@ -1,10 +1,10 @@
 import type { Location } from '../types/location';
-import { getAuthToken } from '../utils/auth';
 
 const BASE = (process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:3001").replace(/\/+$/, "");
 
 export async function getLocations(type?: string) {
-    const token = getAuthToken();
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
     if (!token) {
         throw new Error('Not authenticated');
