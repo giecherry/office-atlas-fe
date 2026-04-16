@@ -8,8 +8,11 @@ import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
 import { getLocations } from "./api/locations";
+import { useAuthProtection } from "./hooks/useAuthProtection";
 
 export default function Home() {
+  useAuthProtection();
+
   const {
     selectedLocation,
     setSelectedLocation,

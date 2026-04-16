@@ -160,7 +160,6 @@ export const useLocationStore = create<LocationStore>()(
         }),
         {
             name: "location-store",
-            partialize: (state) => ({ selectedLocation: state.selectedLocation }),
         }
     )
 );

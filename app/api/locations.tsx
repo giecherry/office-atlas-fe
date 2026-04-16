@@ -1,10 +1,26 @@
 import type { Location } from '../types/location';
+import { getAuthToken } from '../utils/auth';
 
 const BASE = (process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:3001").replace(/\/+$/, "");
 
 export async function getLocations(type?: string) {
+    const token = getAuthToken();
+
+    if (!token) {
+        throw new Error('Not authenticated');
+    }
+
     const url = type ? `${BASE}/locations?type=${type}` : `${BASE}/locations`;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to fetch locations');
+    }
+
     return res.json();
 }
 
