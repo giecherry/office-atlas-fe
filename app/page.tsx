@@ -1,6 +1,4 @@
 'use client'
-
-import Search from "./components/Search";
 import LocationDetailPanel from "./components/LocationDetailPanel";
 import ResultList from "./components/ResultList";
 import { useLocationStore } from "./store/location";
@@ -61,10 +59,6 @@ export default function Home() {
   return (
     <>
       <main className="flex flex-col h-screen pt-16 bg-[#E4E9F1]">
-        <div className="p-2 md:p-4 lg:pb-0 lg:p-6">
-          <Search />
-        </div>
-
         <LayoutGroup>
           <div className="flex flex-col md:flex-row flex-1 gap-4 p-2 md:p-4 lg:p-6 md:overflow-hidden">
             <div className="hidden md:flex flex-col shrink-0" style={{ width: 300 }}>

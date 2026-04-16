@@ -3,6 +3,7 @@
 import { Building2, UtensilsCrossed, Train, Bus } from 'lucide-react';
 import { useLocationStore } from '../store/location';
 import type { locationType } from '../types/location';
+import Search from './Search';
 
 const typeConfig: Record<locationType, { icon: React.ReactNode; color: string; label: string }> = {
     office: { icon: <Building2 className="w-4 h-4" />, color: '#16417F', label: 'Office' },
@@ -29,24 +30,20 @@ export default function ResultList() {
     });
 
     return (
-        <div className="bg-white flex flex-col h-full px-4 py-2">
-            <div className="p-2 border-b border-gray-200">
-                <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="p-3 rounded-xl shrink-0" />
-                        <div className="flex-1 min-w-0">
-                            <h2 className="uppercase text-xl font-semibold text-gray-900 mb-1">
-                                Results
-                            </h2>
-                        </div>
-                    </div>
-                    <span className="text-sm text-gray-500 mt-1 shrink-0">
-                        {filteredLocations.length} locations
-                    </span>
+        <div className="bg-white flex flex-col h-full px-4 pt-2 pb-2">
+            <div className="pt-4 pb-2 flex flex-col gap-2">
+                <div className="">
+                    <h2 className="uppercase text-xl font-semibold text-gray-900">
+                        Working Locations
+                    </h2>
                 </div>
+                <span className="text-sm text-gray-500 shrink-0">
+                    {filteredLocations.length} locations
+                </span>
+                <Search />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            <div className="flex-1 overflow-y-auto py-0 px-2 space-y-1 scrollbar-thin scrollbar-thumb-[#16417F] scrollbar-track-[#8fb0de00]">
                 {filteredLocations.length === 0 ? (
                     <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
                         No locations found
@@ -63,7 +60,7 @@ export default function ResultList() {
                                     setAnchorLocation(loc);
                                     exitNearbyMode();
                                 }}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${isSelected
+                                className={`w-full flex items-center gap-3 px-2 py-2 rounded-xl text-left transition-colors ${isSelected
                                     ? 'bg-blue-50 border border-blue-200'
                                     : 'hover:bg-gray-50 border border-transparent'
                                     }`}
