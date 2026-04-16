@@ -34,7 +34,7 @@ export default function ResultList() {
             <div className="pt-4 pb-2 flex flex-col gap-2">
                 <div className="">
                     <h2 className="uppercase text-xl font-semibold text-gray-900">
-                        Working Locations
+                        Workspaces
                     </h2>
                 </div>
                 <span className="text-sm text-gray-500 shrink-0">
