@@ -6,18 +6,92 @@ import { useRouter } from 'next/navigation';
 import { login, register } from '../api/auth';
 import { useAuthStore } from '../store/auth';
 
+interface FieldErrors {
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+}
+
+function validateSignUp(email: string, password: string, confirmPassword: string): FieldErrors {
+    const errors: FieldErrors = {};
+
+    if (!email) {
+        errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.email = 'Invalid email format';
+    }
+
+    if (!password) {
+        errors.password = 'Password is required';
+    } else if (password.length < 6) {
+        errors.password = 'Password must be at least 6 characters';
+    } else if (!/[A-Z]/.test(password)) {
+        errors.password = 'Password must contain at least one uppercase letter';
+    } else if (!/[0-9]/.test(password)) {
+        errors.password = 'Password must contain at least one number';
+    }
+
+    if (!confirmPassword) {
+        errors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+        errors.confirmPassword = 'Passwords do not match';
+    }
+
+    return errors;
+}
+
+function validateLogin(email: string, password: string): FieldErrors {
+    const errors: FieldErrors = {};
+
+    if (!email) {
+        errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.email = 'Invalid email format';
+    }
+
+    if (!password) {
+        errors.password = 'Password is required';
+    } else if (password.length < 6) {
+        errors.password = 'Password must be at least 6 characters';
+    }
+
+    return errors;
+}
+
 export default function LoginPage() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const { setAuth } = useAuthStore();
 
-    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    const toggleMode = () => {
+        setError('');
+        setFieldErrors({});
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setIsSignUp(!isSignUp);
+    };
+
+    const handleSubmit = async (e: { preventDefault(): void }) => {
         e.preventDefault();
         setError('');
+
+        const errors = isSignUp
+            ? validateSignUp(email, password, confirmPassword)
+            : validateLogin(email, password);
+
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            return;
+        }
+
+        setFieldErrors({});
         setLoading(true);
 
         try {
@@ -32,17 +106,11 @@ export default function LoginPage() {
                 router.push('/');
             }
         } catch (err: unknown) {
-            const error = err instanceof Error ? err : new Error('An error occurred');
-            setError(error.message || 'An error occurred');
+            const message = err instanceof Error ? err.message : 'An error occurred';
+            setError(message);
+        } finally {
             setLoading(false);
         }
-    };
-
-    const toggleMode = () => {
-        setError('');
-        setEmail('');
-        setPassword('');
-        setIsSignUp(!isSignUp);
     };
 
     return (
@@ -57,30 +125,58 @@ export default function LoginPage() {
                     {isSignUp ? 'Create an account' : 'Log in'}
                 </h1>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {error && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4 text-center">
+                        {error}
+                    </p>
+                )}
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
                     <div className="flex flex-col gap-1">
                         <label className="text-sm text-gray-600" htmlFor="email">Email</label>
                         <input
                             id="email"
                             type="text"
-                            required
                             placeholder="your@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42]"
+                            className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42] ${fieldErrors.email ? 'border-red-400' : 'border-gray-300'}`}
                         />
+                        {fieldErrors.email && (
+                            <p className="text-xs text-red-500 mt-0.5">{fieldErrors.email}</p>
+                        )}
                     </div>
+
                     <div className="flex flex-col gap-1">
                         <label className="text-sm text-gray-600" htmlFor="password">Password</label>
                         <input
                             id="password"
                             type="password"
-                            required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42]"
+                            className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42] ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
                         />
+                        {fieldErrors.password && (
+                            <p className="text-xs text-red-500 mt-0.5">{fieldErrors.password}</p>
+                        )}
                     </div>
+
+                    {isSignUp && (
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm text-gray-600" htmlFor="confirmPassword">Confirm password</label>
+                            <input
+                                id="confirmPassword"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42] ${fieldErrors.confirmPassword ? 'border-red-400' : 'border-gray-300'}`}
+                            />
+                            {fieldErrors.confirmPassword && (
+                                <p className="text-xs text-red-500 mt-0.5">{fieldErrors.confirmPassword}</p>
+                            )}
+                        </div>
+                    )}
+
                     <button
                         type="submit"
                         disabled={loading}

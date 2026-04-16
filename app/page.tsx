@@ -9,7 +9,7 @@ import { getLocations } from "./api/locations";
 import { useAuthProtection } from "./hooks/useAuthProtection";
 
 export default function Home() {
-  useAuthProtection();
+  const isAuthenticated = useAuthProtection();
 
   const {
     selectedLocation,
@@ -25,6 +25,8 @@ export default function Home() {
   ), []);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchData = async () => {
       try {
         const offices = await getLocations();
@@ -34,7 +36,7 @@ export default function Home() {
       }
     };
     fetchData();
-  }, []);
+  }, [isAuthenticated]);
 
   const detailLocation = selectedLocation ?? (showNearbySearch ? anchorLocation : null);
   const detailPanelOpen = !!detailLocation;
