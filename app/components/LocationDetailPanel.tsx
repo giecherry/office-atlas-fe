@@ -98,6 +98,14 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         }
     };
 
+    const handleNavigationClick = (): void => {
+        if (isNavigating) {
+            setIsNavigating(false);
+        } else {
+            setShowDirectionsPicker(!showDirectionsPicker);
+        }
+    };
+
     if (!location) return null;
 
     return (
@@ -251,7 +259,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                 )}
 
                 <button
-                    onClick={() => isNavigating ? setIsNavigating(false) : setShowDirectionsPicker(!showDirectionsPicker)}
+                    onClick={handleNavigationClick}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl transition-colors"
                 >
                     <Navigation className="w-4 h-4 shrink-0 font-semibold " strokeWidth={3} />
@@ -262,7 +270,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                     ) : (
                         <div className="flex flex-col items-center">
                             <span className="text-sm font-semibold leading-tight">Get Directions</span>
-                            <span className="text-xs font-normal opacity-75 leading-tight">{location.name}</span>
+                            <span className="text-xs font-normal opacity-75 leading-tight">to {location.name}</span>
                         </div>
                     )}
                 </button>
