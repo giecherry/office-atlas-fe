@@ -10,14 +10,15 @@ function formatInstruction(step: any): string {
     const modifier = step.maneuver?.modifier ?? '';
     const name = step.name ?? '';
 
-    if (type === 'depart') return `Start${name ? ` on ${name}` : ''}`;
+    if (type === 'depart') return `Head to${name ? ` ${name}` : ' your destination'}`;
     if (type === 'arrive') return 'Arrived at destination';
     if (type === 'turn') {
-        const dir = modifier === 'left' ? 'left' : modifier === 'right' ? 'right' : 'straight';
-        return `Turn ${dir}${name ? ` on ${name}` : ''}`;
+        if (modifier === 'left') return `Turn left${name ? ` on ${name}` : ''}`;
+        if (modifier === 'right') return `Turn right${name ? ` on ${name}` : ''}`;
+        return `Keep walking in this direction${name ? ` on ${name}` : ''}`;
     }
-    if (type === 'roundabout' || type === 'rotary') return `Take the roundabout${name ? ` toward ${name}` : ''}`;
-    return name ? `Continue on ${name}` : 'Continue straight';
+    if (type === 'roundabout' || type === 'rotary') return `Enter the roundabout${name ? ` toward ${name}` : ''}`;
+    return name ? `Continue on ${name}` : 'Keep walking';
 }
 
 export default function Navigation() {
