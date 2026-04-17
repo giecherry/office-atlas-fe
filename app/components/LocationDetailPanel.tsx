@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     Navigation, Building2, UtensilsCrossed, Train, Bus,
     X, MapPin, Search, LocateFixed, Loader2,
-    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink
+    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe
 } from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
@@ -284,7 +284,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                     <div className="rounded-xl border border-blue-100 bg-blue-50 overflow-hidden">
                         {directionsDuration && (
                             <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-[#16417F] font-medium border-b border-blue-100">
-                                <Navigation className="w-4 h-4 shrink-0" />
+                                <SportShoe className="w-4 h-4 shrink-0" />
                                 <span>Walking time: {directionsDuration}{directionsDistance && ` · ${directionsDistance}`}</span>
                             </div>
                         )}
