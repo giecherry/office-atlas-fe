@@ -16,13 +16,18 @@ export async function GET(request: Request) {
         url.searchParams.set('layer', 'address');
 
         const response = await fetch(url, {
-            headers: { 'Accept-Language': 'sv,en' },
+            headers: {
+                'Accept-Language': 'sv,en',
+                'User-Agent': 'OfficeAtlas (https://github.com/giecherry/office-atlas)'
+            },
         });
 
-        if (!response.ok) return Response.json(null);
+        if (!response.ok) {
+            return Response.json(null);
+        }
         const data = await response.json();
         return Response.json(data);
-    } catch {
+    } catch (err) {
         return Response.json(null);
     }
 }

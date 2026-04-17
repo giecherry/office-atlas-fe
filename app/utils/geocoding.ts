@@ -17,11 +17,15 @@ export async function getAddressFromCoordinates(
     lon: number
 ): Promise<string | null> {
     const cacheKey = `${lat.toFixed(5)},${lon.toFixed(5)}`;
-    if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)!;
+    if (geocodeCache.has(cacheKey)) {
+        return geocodeCache.get(cacheKey)!;
+    }
 
     try {
         const response = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
-        if (!response.ok) return null;
+        if (!response.ok) {
+            return null;
+        }
 
         const data: NominatimReverseResponse = await response.json();
         const { road, house_number, postcode, city, town, village } = data.address;
@@ -33,7 +37,7 @@ export async function getAddressFromCoordinates(
         const address = parts.length > 0 ? parts.join(', ') : data.display_name;
         geocodeCache.set(cacheKey, address);
         return address;
-    } catch {
+    } catch (err) {
         return null;
     }
 }
