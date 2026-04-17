@@ -311,10 +311,10 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs text-gray-800">{step.instruction}</p>
                                             {step.distanceMeters > 0 && (
-                                                <p className="text-[10px] text-gray-400 mt-0.5">
+                                                <p className="text-xs text-gray-500 mt-0.5 font-medium">
                                                     {step.distanceMeters < 1000
-                                                        ? `${step.distanceMeters} m`
-                                                        : `${(step.distanceMeters / 1000).toFixed(1)} km`}
+                                                        ? `Walk ${step.distanceMeters} meters`
+                                                        : `Walk ${(step.distanceMeters / 1000).toFixed(1)} km`}
                                                 </p>
                                             )}
                                         </div>
