@@ -88,6 +88,7 @@ export default function Home() {
                       exit={{ width: 0 }}
                       transition={{ duration: 0.4, ease: 'easeInOut' }}
                       style={{ flexShrink: 0, overflow: 'hidden' }}
+                      className="hidden"
                     >
                       <motion.div
                         initial={{ x: 320 }}

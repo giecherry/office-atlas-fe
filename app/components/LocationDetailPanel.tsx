@@ -243,19 +243,28 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                 {location.type === 'office' && (
                     <button
                         onClick={handleNearbySearchClick}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-medium transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-xl transition-colors"
                     >
-                        <Search className="w-4 h-4" />
-                        <span>{showNearbySearch ? 'Close Nearby' : 'Explore Nearby'}</span>
+                        <Search className="w-4 h-4" strokeWidth={3} />
+                        <span>{showNearbySearch ? 'Exit Nearby' : 'Explore Nearby'}</span>
                     </button>
                 )}
 
                 <button
                     onClick={() => isNavigating ? setIsNavigating(false) : setShowDirectionsPicker(!showDirectionsPicker)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl font-medium transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl transition-colors"
                 >
-                    <Navigation className="w-4 h-4" />
-                    <span>{isNavigating ? "Quit navigation" : "Get Directions"}</span>
+                    <Navigation className="w-4 h-4 shrink-0 font-semibold " strokeWidth={3} />
+                    {isNavigating ? (
+                        <span className='font-semibold text-sm '>Stop Navigation</span>
+                    ) : showDirectionsPicker ? (
+                        <span className='font-semibold text-sm '>Cancel</span>
+                    ) : (
+                        <div className="flex flex-col items-center">
+                            <span className="text-sm font-semibold leading-tight">Get Directions</span>
+                            <span className="text-xs font-normal opacity-75 leading-tight">{location.name}</span>
+                        </div>
+                    )}
                 </button>
 
                 {isNavigating && (directionsDuration || directionsSteps.length > 0) && (
