@@ -20,17 +20,7 @@ export async function getAddressFromCoordinates(
     if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)!;
 
     try {
-        const url = new URL('https://nominatim.openstreetmap.org/reverse');
-        url.searchParams.set('lat', lat.toString());
-        url.searchParams.set('lon', lon.toString());
-        url.searchParams.set('format', 'jsonv2');
-        url.searchParams.set('zoom', '18');
-        url.searchParams.set('layer', 'address');
-
-        const response = await fetch(url, {
-            headers: { 'Accept-Language': 'sv,en' },
-        });
-
+        const response = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
         if (!response.ok) return null;
 
         const data: NominatimReverseResponse = await response.json();
