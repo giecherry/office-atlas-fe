@@ -22,6 +22,7 @@ interface LocationStore {
 
     // --- Nearby mode ---
     showNearbySearch: boolean;
+    setShowNearbySearch: (value: boolean) => void;
     enterNearbyMode: () => void;
     exitNearbyMode: () => void;
 
@@ -83,6 +84,7 @@ export const useLocationStore = create<LocationStore>()(
 
             // --- Nearby mode ---
             showNearbySearch: false,
+            setShowNearbySearch: (value) => set({ showNearbySearch: value }),
             enterNearbyMode: () => {
                 const { anchorLocation } = get();
                 if (!anchorLocation) return;

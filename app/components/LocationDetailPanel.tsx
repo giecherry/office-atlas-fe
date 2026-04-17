@@ -38,7 +38,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         showDirectionsPicker, setShowDirectionsPicker,
         setDirectionsOrigin, directionsOrigin,
         directionsDuration, directionsDistance, directionsSteps,
-        locations, setSelectedLocation, swapDirections
+        locations, setSelectedLocation, swapDirections, setShowNearbySearch
     } = useLocationStore();
 
     const [isLocating, setIsLocating] = useState(false);
@@ -52,8 +52,8 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
     }, [location]);
 
     const availableOrigins = locations.filter(loc => loc.id !== location?.id);
-    const isAnchor = showNearbySearch && anchorLocation?.id === location?.id;
-    const isViewingNearbyResult = showNearbySearch && anchorLocation && location?.id !== anchorLocation.id;
+    const isAnchor = anchorLocation?.id === location?.id;
+    const isViewingNearbyResult = anchorLocation && location?.id !== anchorLocation.id;
 
     const handleUseMyLocation = () => {
         if (userLocation) {
@@ -103,7 +103,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
 
     const handleNavigationClick = (): void => {
         if (showNearbySearch) {
-            exitNearbyMode();
+            setShowNearbySearch(false);
         }
         if (isNavigating) {
             setIsNavigating(false);
@@ -122,8 +122,16 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                         onClick={() => {
                             if (isMobileModal) {
                                 onClose();
-                            } else {
+                            }
+
+                            if (isNavigating || showDirectionsPicker) {
+                                setIsNavigating(false);
+                                setShowDirectionsPicker(false);
+                            }
+
+                            if (anchorLocation) {
                                 setSelectedLocation(anchorLocation);
+                                setShowNearbySearch(true);
                             }
                         }}
                         className="flex items-center gap-1.5 text-sm text-[#16417F] hover:underline mb-3 mt-2"
