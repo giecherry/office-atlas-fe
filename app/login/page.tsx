@@ -98,11 +98,11 @@ export default function LoginPage() {
             if (isSignUp) {
                 await register(email, password);
                 const response = await login(email, password);
-                setAuth(response.token, { user_id: response.user_id, email: response.email });
+                setAuth(response.token, { user_id: response.user_id, email: response.email }, response.refreshToken);
                 router.push('/');
             } else {
                 const response = await login(email, password);
-                setAuth(response.token, { user_id: response.user_id, email: response.email });
+                setAuth(response.token, { user_id: response.user_id, email: response.email }, response.refreshToken);
                 router.push('/');
             }
         } catch (err: unknown) {
