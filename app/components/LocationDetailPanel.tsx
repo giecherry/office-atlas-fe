@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     Navigation, Building2, UtensilsCrossed, Train, Bus,
     X, MapPin, Search, LocateFixed, Loader2,
-    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe
+    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe, ArrowLeftRight
 } from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
@@ -36,9 +36,9 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         setAnchorLocation, anchorLocation,
         isNavigating, setIsNavigating,
         showDirectionsPicker, setShowDirectionsPicker,
-        setDirectionsOrigin,
+        setDirectionsOrigin, directionsOrigin,
         directionsDuration, directionsDistance, directionsSteps,
-        locations, setSelectedLocation,
+        locations, setSelectedLocation, swapDirections
     } = useLocationStore();
 
     const [isLocating, setIsLocating] = useState(false);
@@ -282,6 +282,19 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
 
                 {isNavigating && (directionsDuration || directionsSteps.length > 0) && (
                     <div className="rounded-xl border border-blue-100 bg-blue-50 overflow-hidden">
+                        <div className="flex items-center gap-2 px-1 py-1.5 text-sm text-[#16417F] font-medium border-b border-blue-100">
+                            <h6 className=" flex flex-col text-xs font-semibold text-[#16417F]  px-3 pt-3 pb-2">
+                                Origin:<span className="font-medium ">{directionsOrigin ? directionsOrigin.name : 'My Location'}</span>
+                            </h6>
+                            <h6 className="flex flex-col  text-xs font-semibold text-[#16417F] px-3 pt-3 pb-2">
+                                Destination:                             <span className="font-medium">{location.name}</span>
+                            </h6>
+                            <button className="font-medium border-l pl-2 py-1 border-blue-200"
+                                onClick={swapDirections}
+                            >
+                                <ArrowLeftRight className="w-4 h-4 text-[#16417F]" />
+                            </button>
+                        </div>
                         {directionsDuration && (
                             <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-[#16417F] font-medium border-b border-blue-100">
                                 <SportShoe className="w-4 h-4 shrink-0" />

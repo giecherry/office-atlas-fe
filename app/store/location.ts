@@ -61,6 +61,7 @@ interface LocationStore {
     setShowDirectionsPicker: (value: boolean) => void;
     directionsOrigin: Location | null;
     setDirectionsOrigin: (loc: Location | null) => void;
+    swapDirections: () => void;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -157,6 +158,21 @@ export const useLocationStore = create<LocationStore>()(
             setShowDirectionsPicker: (value) => set({ showDirectionsPicker: value }),
             directionsOrigin: null,
             setDirectionsOrigin: (loc) => set({ directionsOrigin: loc }),
+            swapDirections: () => {
+                const state = get();
+                const origin = state.directionsOrigin;
+                const destination = state.selectedLocation;
+
+                if (!state.isNavigating || !destination) return;
+
+                set({
+                    directionsOrigin: destination as any,
+                    selectedLocation: origin ?? destination,
+                    directionsSteps: [],
+                    directionsDuration: null,
+                    directionsDistance: null,
+                });
+            },
         }),
         {
             name: "location-store",
