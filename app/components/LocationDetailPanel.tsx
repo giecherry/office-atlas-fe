@@ -181,7 +181,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                 <div className="py-4 px-2">
                     {address && (
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
                                 <MapPin className="w-4 h-4" />
                                 Address
                             </h3>
@@ -206,29 +206,29 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                         <>
                             {location.openingHours && (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
                                         <Clock className="w-4 h-4" />
                                         Opening Hours
                                     </h3>
                                     <div className="space-y-1">
                                         {location.openingHours.split(';').map((hours, idx) => (
-                                            <p key={idx} className="text-sm text-gray-600">{hours.trim()}</p>
+                                            <p key={idx} className="text-sm mb-2 text-gray-600">{hours.trim()}</p>
                                         ))}
                                     </div>
                                 </div>
                             )}
                             {location.cuisine && (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
                                         <HandPlatter className="w-4 h-4" />
                                         Cuisine
                                     </h3>
-                                    <p className="text-sm capitalize text-gray-600">{location.cuisine}</p>
+                                    <p className="text-sm capitalize mb-2 text-gray-600">{location.cuisine}</p>
                                 </div>
                             )}
 
                             <div>
-                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
                                     <BookUser className="w-4 h-4" />
                                     Contact
                                 </h3>
@@ -247,7 +247,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                                         href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng, location.name)}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                        className="flex items-center mb-2 gap-1 text-sm text-[#16417F] hover:underline"
                                     >
                                         Open in Google Maps <ExternalLink size={14} />
                                     </a>
