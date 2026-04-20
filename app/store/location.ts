@@ -1,12 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Location, locationType } from "../types/location";
+import { useAuthStore } from "./auth";
 
 
 type LatLng = { lat: number; lng: number };
 type DirectionsStep = { instruction: string; distanceMeters: number };
 
 interface LocationStore {
+    // --- Favorites (keyed per user) ---
+    favoritesByUser: Record<string, Location[]>;
+    getFavorites: () => Location[];
+    addFavorite: (location: Location) => void;
+    removeFavorite: (id: string) => void;
+    isFavorite: (id: string) => boolean;
+
     // --- Internal locations ---
     locations: Location[];
     setLocations: (locations: Location[]) => void;
@@ -68,6 +76,36 @@ interface LocationStore {
 export const useLocationStore = create<LocationStore>()(
     persist(
         (set, get) => ({
+            // --- Favorites (keyed per user) ---
+            favoritesByUser: {},
+            getFavorites: () => {
+                const userId = useAuthStore.getState().user?.user_id;
+                if (!userId) return [];
+                return get().favoritesByUser[userId] ?? [];
+            },
+            addFavorite: (location) => {
+                const userId = useAuthStore.getState().user?.user_id;
+                if (!userId) return;
+                set((state) => {
+                    const current = state.favoritesByUser[userId] ?? [];
+                    if (current.some((f: Location) => f.id === location.id)) return state;
+                    return { favoritesByUser: { ...state.favoritesByUser, [userId]: [...current, location] } };
+                });
+            },
+            removeFavorite: (id) => {
+                const userId = useAuthStore.getState().user?.user_id;
+                if (!userId) return;
+                set((state) => {
+                    const current = state.favoritesByUser[userId] ?? [];
+                    return { favoritesByUser: { ...state.favoritesByUser, [userId]: current.filter((f: Location) => f.id !== id) } };
+                });
+            },
+            isFavorite: (id) => {
+                const userId = useAuthStore.getState().user?.user_id;
+                if (!userId) return false;
+                return (get().favoritesByUser[userId] ?? []).some((f: Location) => f.id === id);
+            },
+
             // --- Internal locations ---
             locations: [],
             setLocations: (locations) => set({ locations }),
