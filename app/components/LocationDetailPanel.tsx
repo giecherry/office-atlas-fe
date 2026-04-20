@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     Navigation, Building2, UtensilsCrossed, Train, Bus,
     X, MapPin, Search, LocateFixed, Loader2,
-    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe, ArrowLeftRight
+    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe, ArrowLeftRight, Heart
 } from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
@@ -38,7 +38,8 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
         showDirectionsPicker, setShowDirectionsPicker,
         setDirectionsOrigin, directionsOrigin,
         directionsDuration, directionsDistance, directionsSteps,
-        locations, setSelectedLocation, swapDirections, setShowNearbySearch
+        locations, setSelectedLocation, swapDirections, setShowNearbySearch,
+        addFavorite, removeFavorite, isFavorite,
     } = useLocationStore();
 
     const [isLocating, setIsLocating] = useState(false);
@@ -152,15 +153,28 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                             </h2>
                         </div>
                     </div>
-                    {!isViewingNearbyResult && (
+                    <div className="flex items-center gap-1 shrink-0">
                         <button
-                            onClick={onClose}
-                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0"
-                            aria-label="Close panel"
+                            onClick={() => isFavorite(location.id) ? removeFavorite(location.id) : addFavorite(location)}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            aria-label={isFavorite(location.id) ? 'Remove from favorites' : 'Add to favorites'}
                         >
-                            <X className="w-4 h-4 text-gray-600" />
+                            <Heart
+                                className="w-4 h-4"
+                                fill={isFavorite(location.id) ? '#e11d48' : 'none'}
+                                stroke={isFavorite(location.id) ? '#e11d48' : 'currentColor'}
+                            />
                         </button>
-                    )}
+                        {!isViewingNearbyResult && (
+                            <button
+                                onClick={onClose}
+                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                                aria-label="Close panel"
+                            >
+                                <X className="w-4 h-4 text-gray-600" />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {isViewingNearbyResult && anchorLocation && (
