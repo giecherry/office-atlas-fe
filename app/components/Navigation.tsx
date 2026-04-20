@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Polyline } from 'react-leaflet';
 import { useLocationStore } from '../store/location';
 
@@ -24,11 +24,13 @@ function formatInstruction(step: any): string {
 export default function Navigation() {
     const { userLocation, selectedLocation, isNavigating, directionsOrigin, setDirectionsDuration, setDirectionsDistance, setDirectionsSteps } = useLocationStore();
     const [routePositions, setRoutePositions] = useState<[number, number][]>([]);
+    const userLocationRef = useRef(userLocation);
+    useEffect(() => { userLocationRef.current = userLocation; }, [userLocation]);
 
     useEffect(() => {
         const origin = directionsOrigin
             ? { lat: Number(directionsOrigin.coordinates.lat), lng: Number(directionsOrigin.coordinates.lng) }
-            : userLocation;
+            : userLocationRef.current;
 
         if (!isNavigating || !origin || !selectedLocation) {
             setRoutePositions([]);
@@ -83,7 +85,7 @@ export default function Navigation() {
         };
 
         fetchRoute();
-    }, [isNavigating, userLocation, directionsOrigin, selectedLocation, setDirectionsDuration, setDirectionsDistance, setDirectionsSteps]);
+    }, [isNavigating, directionsOrigin, selectedLocation, setDirectionsDuration, setDirectionsDistance, setDirectionsSteps]);
 
     if (routePositions.length === 0) return null;
 
