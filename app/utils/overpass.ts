@@ -35,6 +35,10 @@ async function queryOverpass(query: string): Promise<OverpassResponse> {
             const response = await fetch(endpoint, {
                 method: 'POST',
                 body: query,
+                headers: {
+                    'Content-Type': 'application/osm3s[bbox:9][out:json]',
+                    'User-Agent': 'OfficeAtlas'
+                },
                 signal: AbortSignal.timeout(15000),
             });
 
