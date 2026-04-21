@@ -138,26 +138,13 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                                 </h2>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                            <button
-                                onClick={() => isFavorite(location.id) ? removeFavorite(location.id) : addFavorite(location)}
-                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                aria-label={isFavorite(location.id) ? 'Remove from favorites' : 'Add to favorites'}
-                            >
-                                <Heart
-                                    className="w-4 h-4"
-                                    fill={isFavorite(location.id) ? '#e11d48' : 'none'}
-                                    stroke={isFavorite(location.id) ? '#e11d48' : 'currentColor'}
-                                />
-                            </button>
-                            <button
-                                onClick={onClose}
-                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                aria-label="Close panel"
-                            >
-                                <X className="w-4 h-4 text-gray-600" />
-                            </button>
-                        </div>
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            aria-label="Close panel"
+                        >
+                            <X className="w-4 h-4 text-gray-600" />
+                        </button>
                     </div>
                 )}
                 {isViewingNearbyResult && anchorLocation && (
@@ -259,15 +246,30 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
             </div>
 
             <div className="border-t py-4 px-4 border-gray-200 space-y-3">
-                {location.type === 'office' && (
-                    <button
-                        onClick={handleNearbySearchClick}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-xl transition-colors"
-                    >
-                        <Search className="w-4 h-4" strokeWidth={3} />
-                        <span>{showNearbySearch ? 'Exit Nearby' : 'Explore Nearby'}</span>
-                    </button>
-                )}
+                <div className="flex items-start gap-3">
+                    {location.type === 'office' && (
+                        <button
+                            onClick={handleNearbySearchClick}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-200 hover:bg-gray-100 text-sm font-semibold rounded-xl transition-colors"
+                        >
+                            <Search className="w-4 h-4" strokeWidth={3} />
+                            <span>{showNearbySearch ? 'Exit Nearby' : 'Explore Nearby'}</span>
+                        </button>
+                    )}
+                    <div className="flex items-center gap-1 shrink-0">
+                        <button
+                            onClick={() => isFavorite(location.id) ? removeFavorite(location.id) : addFavorite(location)}
+                            className="px-4 py-3  rounded-xl bg-gray-200 hover:bg-gray-100 transition-colors"
+                            aria-label={isFavorite(location.id) ? 'Remove from favorites' : 'Add to favorites'}
+                        >
+                            <Heart
+                                className="w-5 h-5"
+                                fill={isFavorite(location.id) ? '#e11d48' : 'none'}
+                                stroke={isFavorite(location.id) ? '#e11d48' : 'currentColor'}
+                            />
+                        </button>
+                    </div>
+                </div>
                 <button
                     onClick={handleNavigationClick}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#16417F] hover:bg-[#041E42] text-white rounded-xl transition-colors"
