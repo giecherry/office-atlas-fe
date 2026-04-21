@@ -32,12 +32,21 @@ const PIN_OPTIONS: { type: locationType; icon: React.ReactNode; color: string }[
 
 function renderCustomPin(loc: Location, isSelected: boolean = false, isHovered: boolean = false, isAnchor: boolean = false): string {
     const pinOption = PIN_OPTIONS.find(opt => opt.type === loc.type);
-    const pinColor = isAnchor ? '#4A89F3' : (pinOption?.color || '#87AFE8');
+    let pinColor: string;
+
+    if (isAnchor || isSelected && loc.type === 'office') {
+        pinColor = '#4A89F3';
+    } else if (isSelected) {
+        pinColor = `color-mix(in srgb, ${pinOption?.color || '#87AFE8'} 60%, white)`;
+    } else {
+        pinColor = pinOption?.color || '#87AFE8';
+    }
+
     const showLabel = isSelected || isHovered || isAnchor;
     const iconHTML = pinOption?.icon ? renderToStaticMarkup(pinOption.icon) : '';
 
     return `
-        <div class="flex flex-col items-center transition-transform duration-300${isSelected ? ' marker-selected' : ''}" style="cursor: pointer;">
+        <div class="flex flex-col items-center transition-transform duration-300" style="cursor: pointer;">
             <div class="absolute -top-8 left-1/2 whitespace-nowrap px-2 py-0.5 rounded-md text-white shadow-md text-sm font-medium${showLabel ? ' marker-label-active' : ''}" style="background-color: ${pinColor}; opacity: ${showLabel ? '1' : '0'}; pointer-events: none;">
                 ${loc.name}
             </div>
