@@ -7,8 +7,8 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { getLocations } from "./api/locations";
 import { useAuthProtection } from "./hooks/useAuthProtection";
-
 import { X } from 'lucide-react';
+import { LOCATION_TYPE_CONFIG } from "./utils/locationTypes";
 
 export default function Home() {
   const isAuthenticated = useAuthProtection();
@@ -132,7 +132,7 @@ export default function Home() {
 
       {/* Mobile bottom sheet */}
       <AnimatePresence>
-        {mobileSheetOpen && (
+        {mobileSheetOpen && detailLocation && (
           <motion.div
             key="mobile-sheet"
             initial={{ y: '100%' }}
@@ -156,17 +156,20 @@ export default function Home() {
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className="bg-white border-b border-gray-200 px-4 py-2 rounded-t-3xl"
+              className={`bg-white border-b border-gray-200 px-4 ${mobileSheetSnap === 'full' ? 'pt-0' : 'py-2'} rounded-t-3xl flex flex-col justify-around`}
               style={{ height: PEEK_HEIGHT }}
               onClick={() => setMobileSheetSnap(p => p === 'peek' ? 'full' : 'peek')}
             >
               <div className="flex justify-center mb-2">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </div>
-              <div className="flex items-center justify-between pb-1">
-                <span className="text-sm font-semibold text-gray-800 truncate">
-                  {detailLocation?.name ?? ''}
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {LOCATION_TYPE_CONFIG[detailLocation.type].icon('w-6 h-6 text-[#041E42]')}
+                  <h2 className="uppercase text-md font-semibold text-gray-900">
+                    {detailLocation.name}
+                  </h2>
+                </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleMobileExit(); }}
                   className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors ml-2 shrink-0"

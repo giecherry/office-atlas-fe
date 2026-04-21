@@ -108,7 +108,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
 
     return (
         <div className="bg-white flex flex-col h-full px-4 py-2">
-            <div className="pt-2 border-b border-gray-200">
+            <div className={`border-b border-gray-200 ${isMobileModal ? 'pt-0' : 'pt-2'}`}>
                 {isViewingNearbyResult && (
                     <button
                         onClick={() => {
@@ -126,30 +126,30 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                     </button>
                 )}
 
-                <div className="flex items-start justify-between mb-1">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="p-3 rounded-xl text-white shrink-0">
-                            {LOCATION_TYPE_CONFIG[location.type].icon('w-10 h-10 text-[#041E42]')}
+                {!isViewingNearbyResult && !isMobileModal && (
+                    <div className="flex items-start justify-between mb-1">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="p-3 rounded-xl text-white shrink-0">
+                                {LOCATION_TYPE_CONFIG[location.type].icon('w-10 h-10 text-[#041E42]')}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h2 className="uppercase text-xl font-semibold text-gray-900 mb-1">
+                                    {location.name}
+                                </h2>
+                            </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h2 className="uppercase text-xl font-semibold text-gray-900 mb-1">
-                                {location.name}
-                            </h2>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                        <button
-                            onClick={() => isFavorite(location.id) ? removeFavorite(location.id) : addFavorite(location)}
-                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                            aria-label={isFavorite(location.id) ? 'Remove from favorites' : 'Add to favorites'}
-                        >
-                            <Heart
-                                className="w-4 h-4"
-                                fill={isFavorite(location.id) ? '#e11d48' : 'none'}
-                                stroke={isFavorite(location.id) ? '#e11d48' : 'currentColor'}
-                            />
-                        </button>
-                        {!isViewingNearbyResult && !isMobileModal && (
+                        <div className="flex items-center gap-1 shrink-0">
+                            <button
+                                onClick={() => isFavorite(location.id) ? removeFavorite(location.id) : addFavorite(location)}
+                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                                aria-label={isFavorite(location.id) ? 'Remove from favorites' : 'Add to favorites'}
+                            >
+                                <Heart
+                                    className="w-4 h-4"
+                                    fill={isFavorite(location.id) ? '#e11d48' : 'none'}
+                                    stroke={isFavorite(location.id) ? '#e11d48' : 'currentColor'}
+                                />
+                            </button>
                             <button
                                 onClick={onClose}
                                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -157,10 +157,9 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                             >
                                 <X className="w-4 h-4 text-gray-600" />
                             </button>
-                        )}
+                        </div>
                     </div>
-                </div>
-
+                )}
                 {isViewingNearbyResult && anchorLocation && (
                     <p className="text-xs text-gray-400 ml-1 mb-1">
                         Near {anchorLocation.name}
