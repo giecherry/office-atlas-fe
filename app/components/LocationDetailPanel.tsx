@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    Navigation, Building2, UtensilsCrossed, Train, Bus,
+    Navigation,
     X, MapPin, Search, LocateFixed, Loader2,
     Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe, ArrowLeftRight, Heart
 } from 'lucide-react';
@@ -10,23 +10,13 @@ import { getNearbyLocations } from '../api/locations';
 import { getAddressFromCoordinates } from '../utils/geocoding';
 import { getGoogleMapsUrl } from '../utils/general';
 import NearbySearch from './NearbySearch';
+import { LOCATION_TYPE_CONFIG } from '../utils/locationTypes';
 
 interface LocationDetailPanelProps {
     location: Location | null;
     onClose: () => void;
     isMobileModal?: boolean;
 }
-
-
-const getLocationIcon = (type: Location['type']) => {
-    const iconClass = "w-10 h-10 text-[#041E42]";
-    switch (type) {
-        case 'office': return <Building2 className={iconClass} />;
-        case 'restaurant': return <UtensilsCrossed className={iconClass} />;
-        case 'train': return <Train className={iconClass} />;
-        case 'bus': return <Bus className={iconClass} />;
-    }
-};
 
 export default function LocationDetailPanel({ location, onClose, isMobileModal }: LocationDetailPanelProps) {
     const {
@@ -139,7 +129,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                 <div className="flex items-start justify-between mb-1">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                         <div className="p-3 rounded-xl text-white shrink-0">
-                            {getLocationIcon(location.type)}
+                            {LOCATION_TYPE_CONFIG[location.type].icon('w-10 h-10 text-[#041E42]')}
                         </div>
                         <div className="flex-1 min-w-0">
                             <h2 className="uppercase text-xl font-semibold text-gray-900 mb-1">

@@ -1,16 +1,9 @@
 'use client'
 
-import { Building2, UtensilsCrossed, Train, Bus } from 'lucide-react';
 import { useLocationStore } from '../store/location';
-import type { locationType } from '../types/location';
 import Search from './Search';
+import { LOCATION_TYPE_CONFIG } from '../utils/locationTypes';
 
-const typeConfig: Record<locationType, { icon: React.ReactNode; color: string; label: string }> = {
-    office: { icon: <Building2 className="w-4 h-4" />, color: '#16417F', label: 'Office' },
-    restaurant: { icon: <UtensilsCrossed className="w-4 h-4" />, color: '#B20018', label: 'Restaurant' },
-    train: { icon: <Train className="w-4 h-4" />, color: '#EAAD06', label: 'Train' },
-    bus: { icon: <Bus className="w-4 h-4" />, color: '#008064', label: 'Bus' },
-};
 
 export default function ResultList() {
     const {
@@ -50,7 +43,7 @@ export default function ResultList() {
                     </div>
                 ) : (
                     filteredLocations.map(loc => {
-                        const config = typeConfig[loc.type];
+                        const config = LOCATION_TYPE_CONFIG[loc.type];
                         const isSelected = selectedLocation?.id === loc.id;
                         return (
                             <button
@@ -69,7 +62,7 @@ export default function ResultList() {
                                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
                                     style={{ backgroundColor: config.color }}
                                 >
-                                    {config.icon}
+                                    {config.icon()}
                                 </div>
                                 <span className="flex-1 text-sm font-medium text-gray-900 truncate uppercase">
                                     {loc.name}

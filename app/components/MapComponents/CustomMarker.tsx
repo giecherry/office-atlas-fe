@@ -4,53 +4,30 @@ import { Marker } from "react-leaflet";
 import L from 'leaflet';
 import { useRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { locationType, Location } from "../../types/location";
-import { Bus, Building2, Utensils, TrainFront } from "lucide-react";
+import type { Location } from "../../types/location";
+import { LOCATION_TYPE_CONFIG } from '../../utils/locationTypes';
 
-const PIN_OPTIONS: { type: locationType; icon: React.ReactNode; color: string }[] = [
-    {
-        type: 'office',
-        icon: <Building2 />,
-        color: '#16417F',
-    },
-    {
-        type: 'restaurant',
-        icon: <Utensils />,
-        color: '#B20018',
-    },
-    {
-        type: 'train',
-        icon: <TrainFront />,
-        color: '#EAAD06',
-    },
-    {
-        type: 'bus',
-        icon: <Bus />,
-        color: '#008064',
-    },
-];
 
 function renderCustomPin(loc: Location, isSelected: boolean = false, isHovered: boolean = false, isAnchor: boolean = false): string {
-    const pinOption = PIN_OPTIONS.find(opt => opt.type === loc.type);
+    const config = LOCATION_TYPE_CONFIG[loc.type];
     let pinColor: string;
 
     if (isAnchor || isSelected && loc.type === 'office') {
         pinColor = '#4A89F3';
     } else if (isSelected) {
-        pinColor = `color-mix(in srgb, ${pinOption?.color || '#87AFE8'} 60%, white)`;
+        pinColor = `color-mix(in srgb, ${config.color || '#87AFE8'} 60%, white)`;
     } else {
-        pinColor = pinOption?.color || '#87AFE8';
+        pinColor = config.color || '#87AFE8';
     }
 
     const showLabel = isSelected || isHovered || isAnchor;
-    const iconHTML = pinOption?.icon ? renderToStaticMarkup(pinOption.icon) : '';
-
+    const iconHTML = renderToStaticMarkup(<>{config.icon('w-6 h-6')}</>);
     return `
         <div class="flex flex-col items-center transition-transform duration-300" style="cursor: pointer;">
             <div class="absolute -top-8 left-1/2 whitespace-nowrap px-2 py-0.5 rounded-md text-white shadow-md text-sm font-medium${showLabel ? ' marker-label-active' : ''}" style="background-color: ${pinColor}; opacity: ${showLabel ? '1' : '0'}; pointer-events: none;">
                 ${loc.name}
             </div>
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-md transition-all duration-300" style="background-color: ${pinColor}; box-shadow: ${isSelected ? '0 0 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.2)'}">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md transition-all duration-300" style="background-color: ${pinColor}; box-shadow: ${isSelected ? '0 0 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.2)'}">
                 ${iconHTML}
             </div>
             <div class="w-0 h-0" style="border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 9px solid ${pinColor}; margin-top: -1px;"></div>

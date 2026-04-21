@@ -2,21 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, Heart, Building2, UtensilsCrossed, Train, Bus, X } from "lucide-react";
+import { LogOut, Heart, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../store/auth";
 import { useLocationStore } from "../store/location";
-import type { Location } from "../types/location";
-
-function LocationTypeIcon({ type }: { type: Location['type'] }) {
-    const cls = "w-4 h-4 shrink-0 text-[#041E42]";
-    switch (type) {
-        case 'office': return <Building2 className={cls} />;
-        case 'restaurant': return <UtensilsCrossed className={cls} />;
-        case 'train': return <Train className={cls} />;
-        case 'bus': return <Bus className={cls} />;
-    }
-}
+import { LOCATION_TYPE_CONFIG } from '../utils/locationTypes';
 
 export default function Header() {
     const router = useRouter();
@@ -90,7 +80,7 @@ export default function Header() {
                                                         className="flex items-center gap-3 flex-1 min-w-0 text-left"
                                                         onClick={() => { setSelectedLocation(loc); setFavOpen(false); }}
                                                     >
-                                                        <LocationTypeIcon type={loc.type} />
+                                                        {LOCATION_TYPE_CONFIG[loc.type].icon('w-4 h-4 shrink-0 text-[#041E42]')}
                                                         <span className="text-sm font-medium text-gray-800 truncate">{loc.name}</span>
                                                     </button>
                                                     <button
