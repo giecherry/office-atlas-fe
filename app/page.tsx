@@ -4,9 +4,11 @@ import ResultList from "./components/ResultList";
 import { useLocationStore } from "./store/location";
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import dynamic from "next/dynamic";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getLocations } from "./api/locations";
 import { useAuthProtection } from "./hooks/useAuthProtection";
+
+import { X } from 'lucide-react';
 
 export default function Home() {
   const isAuthenticated = useAuthProtection();
@@ -52,9 +54,23 @@ export default function Home() {
     }
   };
 
+  const [mobileSheetSnap, setMobileSheetSnap] = useState<'peek' | 'full'>('full');
+  const PEEK_HEIGHT = 60;
+  const NAV_MARGIN_HEIGHT = 250;
+  const SHEET_HEIGHT = `calc(100vh - ${NAV_MARGIN_HEIGHT}px)`;
+
   const mobileSheetOpen = !!selectedLocation || showNearbySearch;
 
-  const handleCloseMobileSheet = () => {
+
+  useEffect(() => {
+    if (mobileSheetOpen) setMobileSheetSnap('full');
+  }, [mobileSheetOpen]);
+
+  useEffect(() => {
+    if (selectedLocation) setMobileSheetSnap('full');
+  }, [selectedLocation]);
+
+  const handleMobileExit = () => {
     exitNearbyMode();
     setSelectedLocation(null);
   };
@@ -117,36 +133,58 @@ export default function Home() {
       {/* Mobile bottom sheet */}
       <AnimatePresence>
         {mobileSheetOpen && (
-          <>
-            <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden fixed inset-0 z-998 bg-black/30"
-              onClick={handleCloseMobileSheet}
-            />
-
-            <motion.div
-              key="mobile-modal"
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="md:hidden fixed bottom-0 left-0 right-0 z-9999 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-auto"
-              onClick={(e) => e.stopPropagation()}
+          <motion.div
+            key="mobile-sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: mobileSheetSnap === 'peek' ? `calc(100% - ${PEEK_HEIGHT}px)` : '0px' }}
+            exit={{ y: '100%' }}
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.08}
+            onDragEnd={(_, info) => {
+              if (info.velocity.y > 300 || info.offset.y > 120) {
+                setMobileSheetSnap('peek');
+              } else if (info.velocity.y < -300 || info.offset.y < -120) {
+                setMobileSheetSnap('full');
+              } else {
+                setMobileSheetSnap(prev => prev);
+              }
+            }}
+            className="md:hidden fixed inset-x-0 top-0 z-9999 bg-white rounded-t-3xl shadow-2xl"
+            style={{ height: SHEET_HEIGHT, touchAction: 'none', top: NAV_MARGIN_HEIGHT }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="bg-white border-b border-gray-200 px-4 py-2 rounded-t-3xl"
+              style={{ height: PEEK_HEIGHT }}
+              onClick={() => setMobileSheetSnap(p => p === 'peek' ? 'full' : 'peek')}
             >
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-center rounded-t-3xl">
+              <div className="flex justify-center mb-2">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </div>
+              <div className="flex items-center justify-between pb-1">
+                <span className="text-sm font-semibold text-gray-800 truncate">
+                  {detailLocation?.name ?? ''}
+                </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleMobileExit(); }}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors ml-2 shrink-0"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ height: `calc(${SHEET_HEIGHT} - ${PEEK_HEIGHT}px)`, overflow: 'hidden' }} >
               <LocationDetailPanel
                 location={detailLocation}
                 onClose={handleCloseDetail}
                 isMobileModal={true}
               />
-            </motion.div>
-          </>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

@@ -159,7 +159,7 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                                 stroke={isFavorite(location.id) ? '#e11d48' : 'currentColor'}
                             />
                         </button>
-                        {!isViewingNearbyResult && (
+                        {!isViewingNearbyResult && !isMobileModal && (
                             <button
                                 onClick={onClose}
                                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
