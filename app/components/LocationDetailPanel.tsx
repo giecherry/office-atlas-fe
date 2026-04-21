@@ -103,8 +103,9 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
     };
 
     const handleNavigationClick = (): void => {
-        if (showNearbySearch) {
-            exitNearbyMode();
+
+        if (showNearbySearch && !isViewingNearbyResult) {
+            setShowNearbySearch(false);
         }
         if (isNavigating) {
             setIsNavigating(false);
