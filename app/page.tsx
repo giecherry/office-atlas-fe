@@ -46,6 +46,7 @@ export default function Home() {
       setSelectedLocation(anchorLocation);
     } else if (showNearbySearch) {
       exitNearbyMode();
+      setSelectedLocation(null);
     } else {
       setSelectedLocation(null);
     }
