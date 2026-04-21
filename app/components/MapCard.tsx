@@ -67,7 +67,7 @@ export default function MapCard() {
         ];
 
     return (
-        <div className="w-full h-full rounded-md overflow-hidden relative">
+        <div className="w-full h-full rounded-md overflow-hidden relative isolate">
             <motion.img
                 src="./map-skeleton.png"
                 alt="Loading map..."
