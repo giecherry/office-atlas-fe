@@ -206,7 +206,7 @@ export const useLocationStore = create<LocationStore>()(
                 if (!state.isNavigating || !destination) return;
 
                 set({
-                    directionsOrigin: destination as any,
+                    directionsOrigin: destination,
                     selectedLocation: origin ?? destination,
                     directionsSteps: [],
                     directionsDuration: null,

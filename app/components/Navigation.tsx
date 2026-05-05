@@ -4,8 +4,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Polyline } from 'react-leaflet';
 import { useLocationStore } from '../store/location';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatInstruction(step: any): string {
+interface RouteStep {
+    distance?: number;
+    name?: string;
+    maneuver?: {
+        type?: string;
+        modifier?: string;
+    };
+}
+
+function formatInstruction(step: RouteStep): string {
     const type = step.maneuver?.type ?? '';
     const modifier = step.maneuver?.modifier ?? '';
     const name = step.name ?? '';
@@ -33,9 +41,11 @@ export default function Navigation() {
             : userLocationRef.current;
 
         if (!isNavigating || !origin || !selectedLocation) {
-            setRoutePositions([]);
-            setDirectionsDuration(null);
-            setDirectionsDistance(null);
+            queueMicrotask(() => {
+                setRoutePositions([]);
+                setDirectionsDuration(null);
+                setDirectionsDistance(null);
+            });
             return;
         }
 
@@ -73,8 +83,7 @@ export default function Navigation() {
                     );
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const steps = (route.legs?.[0]?.steps ?? []).map((s: any) => ({
+                const steps = (route.legs?.[0]?.steps ?? []).map((s: RouteStep) => ({
                     instruction: formatInstruction(s),
                     distanceMeters: Math.round(s.distance ?? 0),
                 }));

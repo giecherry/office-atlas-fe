@@ -8,11 +8,21 @@ interface AuthStore {
     getAuthToken: () => string | null;
     getRefreshToken: () => string | null;
     isAuthenticated: () => boolean;
+    isDemoMode: () => boolean;
 
     setAuth: (token: string, user: { user_id: string; email: string }, refreshToken: string) => void;
+    setDemoAuth: () => void;
     updateToken: (token: string) => void;
     clearAuth: () => void;
 }
+
+export const DEMO_USER = {
+    user_id: 'demo-user',
+    email: 'demo@officeatlas.local',
+};
+
+const DEMO_TOKEN = 'office-atlas-demo-token';
+const DEMO_REFRESH_TOKEN = 'office-atlas-demo-refresh-token';
 
 export const useAuthStore = create<AuthStore>()(
     persist(
@@ -38,6 +48,10 @@ export const useAuthStore = create<AuthStore>()(
                 return !!get().getAuthToken();
             },
 
+            isDemoMode: () => {
+                return get().user?.user_id === DEMO_USER.user_id || get().getAuthToken() === DEMO_TOKEN;
+            },
+
             setAuth: (token, user, refreshToken) => {
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('auth_token', token);
@@ -46,6 +60,16 @@ export const useAuthStore = create<AuthStore>()(
                     window.dispatchEvent(new Event('auth-change'));
                 }
                 set({ token, user });
+            },
+
+            setDemoAuth: () => {
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('auth_token', DEMO_TOKEN);
+                    localStorage.setItem('refresh_token', DEMO_REFRESH_TOKEN);
+                    localStorage.setItem('auth_user', JSON.stringify(DEMO_USER));
+                    window.dispatchEvent(new Event('auth-change'));
+                }
+                set({ token: DEMO_TOKEN, user: DEMO_USER });
             },
 
             updateToken: (token) => {

@@ -1,10 +1,15 @@
 import type { Location } from '../types/location';
 import { refreshAccessToken } from './auth';
 import { useAuthStore } from '../store/auth';
+import { demoLocations } from '../data/demoLocations';
 
 const BASE = (process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:3001").replace(/\/+$/, "");
 
 export async function getLocations(type?: string) {
+    if (useAuthStore.getState().isDemoMode()) {
+        return type ? demoLocations.filter((location) => location.type === type) : demoLocations;
+    }
+
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
     if (!token) {

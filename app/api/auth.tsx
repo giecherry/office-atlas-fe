@@ -14,8 +14,24 @@ async function parseErrorResponse(res: Response): Promise<string> {
             return error.errors[0]?.msg || 'Validation error';
         }
         return error.error || error.msg || 'An error occurred';
-    } catch (e) {
+    } catch {
         return 'An unexpected error occurred';
+    }
+}
+
+export async function checkAuthAvailability(): Promise<boolean> {
+    try {
+        const res = await fetch(`${BASE}/auth/status`, {
+            method: 'GET',
+            cache: 'no-store',
+        });
+
+        if (!res.ok) return false;
+
+        const data = await res.json();
+        return data.available === true;
+    } catch {
+        return false;
     }
 }
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     Navigation,
     X, MapPin, Search, LocateFixed, Loader2,
-    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe, ArrowLeftRight, Heart
+    Clock, Accessibility, HandPlatter, ArrowLeft, BookUser, ExternalLink, SportShoe, ArrowLeftRight, Heart, Info
 } from 'lucide-react';
 import { Location } from '../types/location';
 import { useLocationStore } from '../store/location';
@@ -169,13 +169,25 @@ export default function LocationDetailPanel({ location, onClose, isMobileModal }
                                         href={getGoogleMapsUrl(location.coordinates.lat, location.coordinates.lng)}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline"
+                                        className="flex items-center gap-1 text-sm text-[#16417F] hover:underline mb-3"
                                     >
                                         Open in Google Maps  <ExternalLink size={14} />
                                     </a>
+                                    {location.description && (
+                                        <>
+                                            <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+
+                                                <Info className="w-4 h-4" />
+                                                Information
+                                            </h3>
+                                            <p className="text-sm text-gray-600 mb-2">
+                                                {location.description}
+                                            </p>
+                                        </>
+                                    )}
                                 </>
                                 :
-                                <p className="text-sm text-gray-60 m-2">{address}</p>
+                                <p className="text-sm text-gray-600 mb-2">{address}</p>
                             }
                         </div>
                     )}

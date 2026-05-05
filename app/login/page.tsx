@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { login, register } from '../api/auth';
+import { checkAuthAvailability, login, register } from '../api/auth';
 import { useAuthStore } from '../store/auth';
 
 interface FieldErrors {
@@ -66,8 +66,21 @@ export default function LoginPage() {
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [authAvailable, setAuthAvailable] = useState<boolean | null>(null);
     const router = useRouter();
-    const { setAuth } = useAuthStore();
+    const { setAuth, setDemoAuth } = useAuthStore();
+
+    useEffect(() => {
+        let isMounted = true;
+
+        checkAuthAvailability().then((available) => {
+            if (isMounted) setAuthAvailable(available);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const toggleMode = () => {
         setError('');
@@ -78,9 +91,21 @@ export default function LoginPage() {
         setIsSignUp(!isSignUp);
     };
 
+    const handleDemoLogin = () => {
+        setError('');
+        setFieldErrors({});
+        setDemoAuth();
+        router.push('/');
+    };
+
     const handleSubmit = async (e: { preventDefault(): void }) => {
         e.preventDefault();
         setError('');
+
+        if (authAvailable === false) {
+            setError('Login is temporarily unavailable. You can still explore the demo version.');
+            return;
+        }
 
         const errors = isSignUp
             ? validateSignUp(email, password, confirmPassword)
@@ -131,6 +156,12 @@ export default function LoginPage() {
                     </p>
                 )}
 
+                {authAvailable === false && (
+                    <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4 text-center">
+                        Supabase is not available right now, so account login is disabled.
+                    </p>
+                )}
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
                     <div className="flex flex-col gap-1">
                         <label className="text-sm text-gray-600" htmlFor="email">Email</label>
@@ -140,6 +171,7 @@ export default function LoginPage() {
                             placeholder="your@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            disabled={authAvailable === false || loading}
                             className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42] ${fieldErrors.email ? 'border-red-400' : 'border-gray-300'}`}
                         />
                         {fieldErrors.email && (
@@ -154,6 +186,7 @@ export default function LoginPage() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            disabled={authAvailable === false || loading}
                             className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42] ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
                         />
                         {fieldErrors.password && (
@@ -169,6 +202,7 @@ export default function LoginPage() {
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
+                                disabled={authAvailable === false || loading}
                                 className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#041E42] ${fieldErrors.confirmPassword ? 'border-red-400' : 'border-gray-300'}`}
                             />
                             {fieldErrors.confirmPassword && (
@@ -179,12 +213,20 @@ export default function LoginPage() {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || authAvailable !== true}
                         className="bg-[#041E42] text-white rounded-lg py-2 text-sm font-medium hover:bg-[#0a3270] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Loading...' : (isSignUp ? 'Create an account' : 'Log in')}
+                        {loading ? 'Loading...' : authAvailable === null ? 'Checking login...' : (isSignUp ? 'Create an account' : 'Log in')}
                     </button>
                 </form>
+
+                <button
+                    type="button"
+                    onClick={handleDemoLogin}
+                    className="w-full mt-3 border border-[#041E42] text-[#041E42] rounded-lg py-2 text-sm font-medium hover:bg-[#041E42] hover:text-white transition-colors"
+                >
+                    Try demo
+                </button>
 
                 <p className="text-sm text-center text-gray-500 mt-6">
                     {isSignUp ? 'Already have an account?' : 'Are you new here?'}{' '}
